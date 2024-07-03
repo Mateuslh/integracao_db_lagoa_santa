@@ -1,4 +1,4 @@
-create view ISSCADASTRO as
+create or replace view  ISSCADASTRO as
 SELECT codigo                  AS INSCRICAO,
        contribuinte_codigo     AS INSCRICAOCAD,
        contribuinte_tipopessoa AS TIPOEMPRESA,
@@ -66,6 +66,7 @@ SELECT codigo                  AS INSCRICAO,
        contribuinte_email      as EMAIL,
        imovel_codigo           as IMOVEL
 FROM economico
+
 
 ---
 
