@@ -15,7 +15,7 @@ DB_PARAMS = {
 }
 
 connection_pool = pool.SimpleConnectionPool(
-    1, 20,  # Min e max conexões no pool
+    1, 20,
     **DB_PARAMS
 )
 

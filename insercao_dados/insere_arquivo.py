@@ -25,10 +25,8 @@ def insere_arquivos():
 
 
 def gerar_inserts_csv_como_string(caminho_csv):
-    df = pd.read_csv(caminho_csv,
-                     delimiter=os.getenv("CSV_DELIMITER"),
-                     engine='python')
-    nome_tabela = caminho_csv.split("\\")[-1].split(".")[0]
+    df = pd.read_csv(caminho_csv, delimiter=os.getenv("CSV_DELIMITER"), engine='python')
+    nome_tabela = caminho_csv.split("/")[-1].split(".")[0]
 
     print(f'Inserindo {df.shape[0]} registros na tabela {nome_tabela}...')
 
@@ -36,7 +34,17 @@ def gerar_inserts_csv_como_string(caminho_csv):
 
     for index, row in df.iterrows():
         colunas = ', '.join(df.columns)
-        valores = ', '.join([f"'{str(val)}'" for val in row.values])
-        comando_insert = f"INSERT INTO {nome_tabela} ({colunas}) VALUES ({valores}) ON CONFLICT (id) DO NOTHING;;"
-        comandos_insert.append(comando_insert)
+        valores = ', '.join([f"'{str(val)}'" if not pd.isna(val) else 'NULL' for val in row.values])
+
+        # Construindo a parte de UPDATE do comando
+        update_set = ', '.join([f"{col} = EXCLUDED.{col}" for col in df.columns if col != 'id'])
+
+        comando_insert = f"""
+        INSERT INTO {nome_tabela} ({colunas}) 
+        VALUES ({valores}) 
+        ON CONFLICT (id) 
+        DO UPDATE SET {update_set};
+        """
+        comandos_insert.append(comando_insert.strip())
+
     return comandos_insert
