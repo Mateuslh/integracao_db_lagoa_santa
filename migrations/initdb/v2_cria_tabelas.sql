@@ -1,3 +1,5 @@
+
+
 CREATE TABLE IF NOT EXISTS public.protocolo
 (
     id            SERIAL PRIMARY KEY,
@@ -17,11 +19,9 @@ CREATE TABLE IF NOT EXISTS public.protocolo
         ]))
 );
 
-
 CREATE INDEX protocolo_protocolo_id_idx ON public.protocolo USING btree (protocolo_id);
 
-
-CREATE TABLE IF NOT EXISTS economico_cnae
+CREATE TABLE IF NOT EXISTS public.economico_cnae
 (
     id                       SERIAL PRIMARY KEY,
     id_economico             BIGINT,
@@ -29,25 +29,24 @@ CREATE TABLE IF NOT EXISTS economico_cnae
     atividade_cnae_codigo    VARCHAR,
     atividade_cnae_descricao VARCHAR
 );
+
 CREATE INDEX protocolo_id_economico_idx ON public.economico_cnae USING btree (id_economico);
 
-drop table economico;
-
-CREATE TABLE IF NOT EXISTS economico
+CREATE TABLE IF NOT EXISTS public.economico
 (
     imovel_id               BIGINT,
     imovel_codigo           BIGINT,
     contribuinte_id         BIGINT,
     contribuinte_codigo     BIGINT,
-    contribuinte_cpfCnpj    varchar(255),
+    contribuinte_cpfCnpj    VARCHAR(255),
     contribuinte_tipoPessoa VARCHAR(255),
-    contribuinte_email      varchar(255),
+    contribuinte_email      VARCHAR(255),
     id                      BIGINT PRIMARY KEY,
     enderecoFormatado       VARCHAR(255),
-    municipio               varchar(255),
-    uf                      varchar,
+    municipio               VARCHAR(255),
+    uf                      VARCHAR(255),
     logradouro              VARCHAR(255),
-    bairro                  varchar(255),
+    bairro                  VARCHAR(255),
     codigo                  BIGINT,
     situacao                VARCHAR(255),
     dtSituacao              DATE,
@@ -64,7 +63,7 @@ CREATE TABLE IF NOT EXISTS economico
     dhInicioAtividade       TIMESTAMP
 );
 
-CREATE TABLE if not exists guia_iss_govdigital
+CREATE TABLE IF NOT EXISTS public.guia_iss_govdigital
 (
     cod_cliente     NUMERIC(22),
     num_cadastro    NUMERIC(22),
@@ -90,4 +89,15 @@ CREATE TABLE if not exists guia_iss_govdigital
     grp_processado  NUMERIC(22)
 );
 
-
+CREATE TABLE IF NOT EXISTS public.contribuinte
+(
+    pessoaJuridica_inscricaoEstadual VARCHAR(255),
+    pessoaJuridica_id                NUMERIC,
+    pessoaFisica_id                  NUMERIC,
+    id                               NUMERIC PRIMARY KEY,
+    codigo                           NUMERIC,
+    nome                             VARCHAR(255),
+    cpfCnpj                          VARCHAR(255),
+    situacao                         VARCHAR(255),
+    tipoPessoa                       VARCHAR(255)
+);
