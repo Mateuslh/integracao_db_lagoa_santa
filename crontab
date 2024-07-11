@@ -1,0 +1,2 @@
+# Rodar o script Python a cada 15 minutos
+*/15 * * * * root python3 /app/main.py >> /var/log/cron.log 2>&
