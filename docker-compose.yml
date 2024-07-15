@@ -23,5 +23,7 @@ services:
       - .env
     depends_on:
       - db
+    command: tail -f /dev/null
+
 volumes:
   postgres-data:
