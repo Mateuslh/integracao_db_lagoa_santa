@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 
@@ -6,12 +7,13 @@ import utils
 
 load_dotenv()
 
+data_limite = datetime.now() - timedelta(days=30)
 
 def buscar_resultados_scripts(ids_scripts, situacao):
     print("Buscando resultados de scripts...")
     registros = []
     for id_script in ids_scripts:
-        registros = buscar_protocolos(id_script, situacao)
+        registros += buscar_protocolos(id_script, situacao)
     print(f'{len(registros)} registros inseridos com sucesso.')
     print('-'*25)
 
@@ -52,9 +54,11 @@ def buscar_protocolos(idScript, situacao) -> list:
                                        "limit": os.getenv('REGISTROS_BUSCADOS_POR_SCRIPT')
                                    }).rodar()
     for protocolo in retorno.json()["content"]:
+        iniciada_em = datetime.strptime(protocolo["iniciadaEm"], "%Y-%m-%dT%H:%M:%S.%f")
         if not protocolo_inserted(idScript, protocolo) and \
                 protocolo["gerouResultado"] and \
-                protocolo["concluida"]:
+                protocolo["concluida"] and \
+                iniciada_em >= data_limite:
             insert_protocolo(protocolo, situacao)
             protocolos_inseridos.append(protocolo)
     return protocolos_inseridos
