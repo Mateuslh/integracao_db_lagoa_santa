@@ -19,6 +19,7 @@ services:
     container_name: python_app
     volumes:
       - .:/app
+      - app_data:/app/data
     env_file:
       - .env
     depends_on:
@@ -27,3 +28,5 @@ services:
 
 volumes:
   postgres-data:
+  app_data:
+
