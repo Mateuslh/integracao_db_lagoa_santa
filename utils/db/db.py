@@ -1,8 +1,10 @@
 import os
+from contextlib import contextmanager
+
 import psycopg2
+import psycopg2.extras
 from dotenv import load_dotenv
 from psycopg2 import pool
-from contextlib import contextmanager
 
 load_dotenv()
 
@@ -18,6 +20,7 @@ connection_pool = pool.SimpleConnectionPool(
     1, 20,
     **DB_PARAMS
 )
+
 
 @contextmanager
 def get_db_connection():
@@ -37,6 +40,7 @@ def get_db_connection():
         if conn:
             connection_pool.putconn(conn)
 
+
 def execute_query(query, params=None):
     """
     Execute a single query without returning any result.
@@ -52,6 +56,7 @@ def execute_query(query, params=None):
                 conn.rollback()
                 print(f"Failed to execute query: {e}")
 
+
 def fetch_results(query, params=None):
     """
     Execute a query and fetch all results.
@@ -60,13 +65,14 @@ def fetch_results(query, params=None):
     :return: List of fetched results.
     """
     with get_db_connection() as conn:
-        with conn.cursor() as cur:
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             try:
                 cur.execute(query, params)
                 return cur.fetchall()
             except Exception as e:
                 print(f"Failed to fetch results: {e}")
                 return []
+
 
 def execute_transaction(queries):
     """
@@ -83,6 +89,7 @@ def execute_transaction(queries):
                 conn.rollback()
                 print(f"Transaction failed: {e}")
 
+
 def close_connection_pool():
     """
     Close all connections in the pool.
@@ -90,6 +97,6 @@ def close_connection_pool():
     connection_pool.closeall()
 
 
-def update_sit_protocolo(protocolo,situacao):
+def update_sit_protocolo(protocolo, situacao):
     execute_query('''UPDATE protocolo SET situacao = %s where protocolo_id = %s''',
-                  params=(situacao,protocolo))
+                  params=(situacao, protocolo))
