@@ -21,8 +21,12 @@ def coletar_dados(protocolo_tuple):
         retorno = requests.request(method="GET",
                                    url=f'https://plataforma-execucoes.betha.cloud/v1/download/api/execucoes/{protocolo}/resultado')
         retorno.raise_for_status()
+        pasta_zip = os.path.join(os.getenv('DIRETORIO_FILES'),'zip')
+        caminho_zip_temp = os.path.join(pasta_zip, protocolo+'.zip')
 
-        caminho_zip_temp = os.path.join(os.getenv('DIRETORIO_FILES'),'zip', protocolo+'.zip')
+        if not os.path.exists(pasta_zip):
+            os.makedirs(pasta_zip)
+
         with open(caminho_zip_temp, 'wb') as file:
             file.write(retorno.content)
         utils.update_sit_protocolo(protocolo=protocolo,situacao="AGUARDANDO_EXTRACAO")
