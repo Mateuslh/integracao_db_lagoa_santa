@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.protocolo
     CONSTRAINT situacao_check CHECK (situacao::text = ANY (ARRAY [
         ('AGUARDANDO_DOWNLOAD'::character varying)::text,
         ('ERRO_INSERCAO'::character varying)::text,
+        ('ERRO_DOWNLOAD'::character varying)::text,
         ('SINCRONIZANDO'::character varying)::text,
         ('AGUARDANDO_SINC_DB'::character varying)::text,
         ('INSERIDO'::character varying)::text,
