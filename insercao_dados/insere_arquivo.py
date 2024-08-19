@@ -60,4 +60,3 @@ def gerar_inserts_csv_como_string(caminho_csv):
     return comandos_insert
 
 
-    return comandos_insert

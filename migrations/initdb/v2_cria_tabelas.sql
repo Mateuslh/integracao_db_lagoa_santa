@@ -1,5 +1,3 @@
-
-
 CREATE TABLE IF NOT EXISTS public.protocolo
 (
     id            SERIAL PRIMARY KEY,
@@ -64,31 +62,42 @@ CREATE TABLE IF NOT EXISTS public.economico
     dhInicioAtividade       TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS public.guia_iss_govdigital
+CREATE TABLE guia_iss_govdigital
 (
-    cod_cliente     NUMERIC(22),
-    num_cadastro    NUMERIC(22),
-    num_documento   NUMERIC(22),
-    mes_competencia NUMERIC(22),
-    ano_competencia NUMERIC(22),
-    cod_barras      VARCHAR(60),
-    data_emissao    DATE,
-    data_vencimento DATE,
-    data_pagavelate DATE,
-    valor_imposto   NUMERIC(22),
-    tipo_tributo    VARCHAR(60),
-    timestamp       DATE,
-    idguia          NUMERIC(22),
-    correcao        NUMERIC(22),
-    juros           NUMERIC(22),
-    multa           NUMERIC(22),
-    tsa             NUMERIC(22),
-    total           NUMERIC(22),
-    ano_documento   NUMERIC(22),
-    papel           VARCHAR(10),
-    obs             VARCHAR(4000),
-    grp_processado  NUMERIC(22)
+    cod_cliente     numeric(6)            NOT NULL,
+    num_cadastro    numeric(10)           NULL,
+    num_documento   numeric(76, 38)       NOT NULL,
+    mes_competencia numeric(2)            NOT NULL,
+    ano_competencia numeric(4)            NOT NULL,
+    cod_barras      varchar(60)           NULL,
+    data_emissao    timestamp             NULL,
+    data_vencimento timestamp             NULL,
+    data_pagavelate timestamp             NULL,
+    valor_imposto   numeric(16, 2)        NULL,
+    tipo_tributo    varchar(60)           NULL,
+    "timestamp"     timestamp             NOT NULL,
+    idguia          numeric(12)           NULL,
+    correcao        numeric(16, 2)        NULL,
+    juros           numeric(16, 2)        NULL,
+    multa           numeric(16, 2)        NULL,
+    tsa             numeric(16, 2)        NULL,
+    total           numeric(16, 2)        NULL,
+    ano_documento   numeric(4)            NOT NULL,
+    papel           varchar(10)           NULL,
+    obs             varchar(4000)         NULL,
+    grp_processado  numeric(1)            NOT NULL,
+    numero_boleto   numeric(20)           NULL,
+    convenio        numeric(76, 38)       NULL,
+    nota_avulsa     numeric(1)            NULL,
+    contribuinte    numeric(10)           NULL,
+    tipocont        varchar(1)            NULL,
+    enviado         BOOLEAN DEFAULT FALSE NOT NULL
 );
+
+
+CREATE INDEX idx_guia_iss_govdigital_enviado
+    ON public.guia_iss_govdigital (enviado);
+
 
 CREATE TABLE IF NOT EXISTS public.contribuinte
 (
@@ -101,4 +110,39 @@ CREATE TABLE IF NOT EXISTS public.contribuinte
     cpfCnpj                          VARCHAR(255),
     situacao                         VARCHAR(255),
     tipoPessoa                       VARCHAR(255)
+);
+
+CREATE TABLE guia_iss_govdigital_canc (
+num_cadastro numeric(10) NOT NULL,
+num_documento numeric(76, 38) NOT NULL,
+ano_documento numeric(4) NOT NULL,
+descricao varchar(4000) NULL,
+data_descarte timestamp NULL,
+data_migracao timestamp NULL DEFAULT now(),
+data_pagavelate timestamp NULL,
+idguia numeric(12) NOT NULL,
+grp_processado numeric(1) NOT NULL,
+numero_boleto numeric(20) NULL,
+convenio numeric(76, 38) NULL,
+papel varchar(10) NULL,
+contribuinte numeric(10) NULL,
+tipocont varchar(1) NULL
+);
+
+
+CREATE TABLE encerramento_govdigital (
+encerramento_id numeric(22) NOT NULL,
+num_cadastro numeric(10) NOT NULL,
+ano_competencia numeric(22) NOT NULL,
+mes_competencia numeric(22) NOT NULL,
+tipo numeric(3) NOT NULL,
+papel varchar(10) NULL,
+data_encerramento timestamp NOT NULL,
+cancelado numeric(1) NOT NULL DEFAULT 0,
+data_cancelamento timestamp NULL,
+motivo_cancelamento varchar(800) NULL,
+grp_processado numeric(1) NOT NULL,
+"timestamp" timestamp NOT NULL,
+total_imposto numeric(19, 5) NULL,
+total_faturado numeric(19, 5) NULL
 );
