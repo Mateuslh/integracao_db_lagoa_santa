@@ -24,6 +24,9 @@ def insere_arquivos():
         print('-'*25)
 
 
+import pandas as pd
+import os
+
 def gerar_inserts_csv_como_string(caminho_csv):
     df = pd.read_csv(caminho_csv, delimiter=os.getenv("CSV_DELIMITER"), engine='python')
     nome_tabela = caminho_csv.split("/")[-1].split(".")[0]
@@ -34,17 +37,27 @@ def gerar_inserts_csv_como_string(caminho_csv):
 
     for index, row in df.iterrows():
         colunas = ', '.join(df.columns)
-        valores = ', '.join([f"'{str(val)}'" if not pd.isna(val) else 'NULL' for val in row.values])
+        valores = []
 
-        # Construindo a parte de UPDATE do comando
+        for val in row.values:
+            if pd.isna(val):
+                valores.append('NULL')
+            else:
+                val_str = str(val).replace("'", "''").replace("\\", "\\\\")
+                valores.append(f"'{val_str}'")
+
+        valores_str = ', '.join(valores)
         update_set = ', '.join([f"{col} = EXCLUDED.{col}" for col in df.columns if col != 'id'])
 
         comando_insert = f"""
         INSERT INTO {nome_tabela} ({colunas}) 
-        VALUES ({valores}) 
+        VALUES ({valores_str}) 
         ON CONFLICT (id) 
         DO UPDATE SET {update_set};
         """
         comandos_insert.append(comando_insert.strip())
+
+    return comandos_insert
+
 
     return comandos_insert
