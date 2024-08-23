@@ -3,6 +3,7 @@ import os
 
 
 def validar_args():
+    print("\n-----------------INICIANDO EXECUÇÃO-----------------\n")
     parser = argparse.ArgumentParser(description="A aplicação de integração de dados é projetada para manter um banco"
                                                  " de dados PostgreSQL atualizado com dados recebidos periodicamente."
                                                  " A aplicação segue um padrão de alimentação contínua e realiza "
