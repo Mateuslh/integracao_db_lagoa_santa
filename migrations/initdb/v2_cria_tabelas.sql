@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS public.economico
 
 CREATE TABLE guia_iss_govdigital
 (
+    id              SERIAL PRIMARY KEY,
     cod_cliente     numeric(6)            NOT NULL,
     num_cadastro    numeric(10)           NULL,
     num_documento   numeric(76, 38)       NOT NULL,
@@ -95,6 +96,7 @@ CREATE TABLE guia_iss_govdigital
 );
 
 
+
 CREATE INDEX idx_guia_iss_govdigital_enviado
     ON public.guia_iss_govdigital (enviado);
 
@@ -112,37 +114,52 @@ CREATE TABLE IF NOT EXISTS public.contribuinte
     tipoPessoa                       VARCHAR(255)
 );
 
-CREATE TABLE guia_iss_govdigital_canc (
-num_cadastro numeric(10) NOT NULL,
-num_documento numeric(76, 38) NOT NULL,
-ano_documento numeric(4) NOT NULL,
-descricao varchar(4000) NULL,
-data_descarte timestamp NULL,
-data_migracao timestamp NULL DEFAULT now(),
-data_pagavelate timestamp NULL,
-idguia numeric(12) NOT NULL,
-grp_processado numeric(1) NOT NULL,
-numero_boleto numeric(20) NULL,
-convenio numeric(76, 38) NULL,
-papel varchar(10) NULL,
-contribuinte numeric(10) NULL,
-tipocont varchar(1) NULL
+CREATE TABLE guia_iss_govdigital_canc
+(
+    num_cadastro    numeric(10)     NOT NULL,
+    num_documento   numeric(76, 38) NOT NULL,
+    ano_documento   numeric(4)      NOT NULL,
+    descricao       varchar(4000)   NULL,
+    data_descarte   timestamp       NULL,
+    data_migracao   timestamp       NULL DEFAULT now(),
+    data_pagavelate timestamp       NULL,
+    idguia          numeric(12)     NOT NULL,
+    grp_processado  numeric(1)      NOT NULL,
+    numero_boleto   numeric(20)     NULL,
+    convenio        numeric(76, 38) NULL,
+    papel           varchar(10)     NULL,
+    contribuinte    numeric(10)     NULL,
+    tipocont        varchar(1)      NULL
 );
 
 
-CREATE TABLE encerramento_govdigital (
-encerramento_id numeric(22) NOT NULL,
-num_cadastro numeric(10) NOT NULL,
-ano_competencia numeric(22) NOT NULL,
-mes_competencia numeric(22) NOT NULL,
-tipo numeric(3) NOT NULL,
-papel varchar(10) NULL,
-data_encerramento timestamp NOT NULL,
-cancelado numeric(1) NOT NULL DEFAULT 0,
-data_cancelamento timestamp NULL,
-motivo_cancelamento varchar(800) NULL,
-grp_processado numeric(1) NOT NULL,
-"timestamp" timestamp NOT NULL,
-total_imposto numeric(19, 5) NULL,
-total_faturado numeric(19, 5) NULL
+CREATE TABLE encerramento_govdigital
+(
+    encerramento_id     numeric(22)    NOT NULL,
+    num_cadastro        numeric(10)    NOT NULL,
+    ano_competencia     numeric(22)    NOT NULL,
+    mes_competencia     numeric(22)    NOT NULL,
+    tipo                numeric(3)     NOT NULL,
+    papel               varchar(10)    NULL,
+    data_encerramento   timestamp      NOT NULL,
+    cancelado           numeric(1)     NOT NULL DEFAULT 0,
+    data_cancelamento   timestamp      NULL,
+    motivo_cancelamento varchar(800)   NULL,
+    grp_processado      numeric(1)     NOT NULL,
+    "timestamp"         timestamp      NOT NULL,
+    total_imposto       numeric(19, 5) NULL,
+    total_faturado      numeric(19, 5) NULL
 );
+
+CREATE TABLE lancamento (
+    id SERIAL PRIMARY KEY NOT NULL,
+    guia_iss_govdigital_id INTEGER NOT NULL,
+    situacao VARCHAR(16) NOT NULL,
+    id_gerado NUMERIC,
+    nro_baixa numeric,
+    json_retorno json,
+    json_enviado json,
+    FOREIGN KEY (guia_iss_govdigital_id) REFERENCES guia_iss_govdigital(id)
+);
+
+drop table lancamento
