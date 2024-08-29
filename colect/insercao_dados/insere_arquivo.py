@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import pandas as pd
 
@@ -8,24 +9,22 @@ import utils
 def insere_arquivos():
     protocolos = utils.fetch_results(query="SELECT protocolo_id FROM protocolo where situacao = 'AGUARDANDO_SINC_DB' "
                                            "and tipo_execucao = %s",
-    params=[os.getenv("TIPO_EXECUCAO")])
+                                     params=[os.getenv("TIPO_EXECUCAO")])
 
-    caminho = os.path.join(os.getenv("DIRETORIO_FILES"),"arquivos")
+    caminho = os.path.join(os.getenv("DIRETORIO_FILES"), "arquivos")
     for protocolo in protocolos:
         protocolo_id = protocolo[0]
-        caminho_protocolo = os.path.join(caminho,protocolo_id)
+        caminho_protocolo = os.path.join(caminho, protocolo_id)
 
         for arquivo in os.listdir(caminho_protocolo):
-            caminho_arquivo = os.path.join(caminho_protocolo,arquivo)
+            caminho_arquivo = os.path.join(caminho_protocolo, arquivo)
             inserts = gerar_inserts_csv_como_string(caminho_arquivo)
             for insert in inserts:
                 utils.execute_query(query=insert)
-        utils.update_sit_protocolo(protocolo_id,'INSERIDO')
-        print('-'*25)
+        shutil.rmtree(caminho_protocolo)
+        utils.update_sit_protocolo(protocolo_id, 'INSERIDO')
+        print('-' * 25)
 
-
-import pandas as pd
-import os
 
 def gerar_inserts_csv_como_string(caminho_csv):
     df = pd.read_csv(caminho_csv, delimiter=os.getenv("CSV_DELIMITER"), engine='python')
@@ -58,5 +57,3 @@ def gerar_inserts_csv_como_string(caminho_csv):
         comandos_insert.append(comando_insert.strip())
 
     return comandos_insert
-
-
