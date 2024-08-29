@@ -1,3 +1,3 @@
 from .pessoa import Pessoa
 from .economico import Economico
-from .lancamento import Lancamento
+from .lancamento_guia import Lancamento_guia

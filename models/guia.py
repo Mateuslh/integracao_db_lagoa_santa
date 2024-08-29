@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, Tuple
 from datetime import date
 
+from models import Lancamento_guia
+
 
 @dataclass
 class Guia:
@@ -60,27 +62,42 @@ class Guia:
     @staticmethod
     def from_row(row: Tuple) -> 'Guia':
         return Guia(
-            cod_cliente=int(row[0]) if row[0] is not None else None,
-            num_cadastro=int(row[1]) if row[1] is not None else None,
-            num_documento=int(row[2]) if row[2] is not None else None,
-            mes_competencia=int(row[3]) if row[3] is not None else None,
-            ano_competencia=int(row[4]) if row[4] is not None else None,
-            cod_barras=row[5],
-            data_emissao=row[6],
-            data_vencimento=row[7],
-            data_pagavelate=row[8],
-            valor_imposto=float(row[9]) if row[9] is not None else None,
-            tipo_tributo=row[10],
-            timestamp=row[11],
-            idguia=int(row[12]) if row[12] is not None else None,
-            correcao=float(row[13]) if row[13] is not None else None,
-            juros=float(row[14]) if row[14] is not None else None,
-            multa=float(row[15]) if row[15] is not None else None,
-            tsa=float(row[16]) if row[16] is not None else None,
-            total=float(row[17]) if row[17] is not None else None,
-            ano_documento=int(row[18]) if row[18] is not None else None,
-            papel=row[19],
-            obs=row[20],
-            grp_processado=int(row[21]) if row[21] is not None else None,
-            enviado=row[22] if row[22] is not None else False
+            cod_cliente=int(row[1]) if row[1] is not None else None,
+            num_cadastro=int(row[2]) if row[2] is not None else None,
+            num_documento=int(row[3]) if row[3] is not None else None,
+            mes_competencia=int(row[4]) if row[4] is not None else None,
+            ano_competencia=int(row[5]) if row[5] is not None else None,
+            cod_barras=row[6],
+            data_emissao=row[7],
+            data_vencimento=row[8],
+            data_pagavelate=row[9],
+            valor_imposto=float(row[10]) if row[10] is not None else None,
+            tipo_tributo=row[11],
+            timestamp=row[12],
+            idguia=int(row[13]) if row[13] is not None else None,
+            correcao=float(row[14]) if row[14] is not None else None,
+            juros=float(row[15]) if row[15] is not None else None,
+            multa=float(row[16]) if row[16] is not None else None,
+            tsa=float(row[17]) if row[17] is not None else None,
+            total=float(row[18]) if row[18] is not None else None,
+            ano_documento=int(row[19]) if row[19] is not None else None,
+            papel=row[20],
+            obs=row[21],
+            grp_processado=int(row[22]) if row[22] is not None else None,
+            enviado=row[23] if row[23] is not None else False
+        )
+
+    def toLancamento(self) -> Lancamento_guia:
+        return Lancamento_guia(
+            nroBaixa= None,
+            chaveLancamento=None,
+            dataLancamento=self.data_emissao,
+            dataVencimento=self.data_vencimento,
+            competencia=str(self.mes_competencia),
+            ano=self.ano_competencia,
+            observacoesReceitaDiversa=self.obs,
+            pessoa=None,
+            economico=None,
+            codigoBarras=self.cod_barras,
+            camposAdicionais={"valor": str(self.total)},
         )

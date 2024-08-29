@@ -3,7 +3,7 @@ import requests
 
 class RequisicaoTela:
 
-    def __init__(self, authorization, method=None, url=None, data=None, headers={}, files=None, json=None, params=None):
+    def __init__(self, authorization:utils.Token_tela, method=None, url=None, data=None, headers={}, files=None, json=None, params=None):
         """
         :type Token_tela
         :type data: Any
