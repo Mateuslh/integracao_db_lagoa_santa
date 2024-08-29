@@ -46,7 +46,7 @@ def buscar_protocolos(idScript, situacao) -> list:
                                        'origin': 'https://scripts.plataforma.betha.cloud',
                                        'priority': 'u=1, i',
                                        'referer': 'https://scripts.plataforma.betha.cloud/',
-                                       'user-access': os.getenv("USER_ACCESS"),
+                                       'user-access': os.getenv("TOKEN_TELA_USER_ACCESS"),
                                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
                                    },
                                    params={
