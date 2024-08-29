@@ -92,13 +92,13 @@ CREATE TABLE guia_iss_govdigital
     nota_avulsa     numeric(1)            NULL,
     contribuinte    numeric(10)           NULL,
     tipocont        varchar(1)            NULL,
-    enviado         BOOLEAN DEFAULT FALSE NOT NULL
+    processado         BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 
 
 CREATE INDEX idx_guia_iss_govdigital_enviado
-    ON public.guia_iss_govdigital (enviado);
+    ON public.guia_iss_govdigital (processado);
 
 
 CREATE TABLE IF NOT EXISTS public.contribuinte
@@ -162,4 +162,7 @@ CREATE TABLE lancamento (
     FOREIGN KEY (guia_iss_govdigital_id) REFERENCES guia_iss_govdigital(id)
 );
 
-drop table lancamento
+CREATE TABLE numero_baixa (
+    id BIGINT PRIMARY KEY,
+    usado BOOLEAN NOT NULL
+);
