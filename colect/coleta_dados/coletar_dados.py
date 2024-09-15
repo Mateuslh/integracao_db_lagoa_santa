@@ -15,7 +15,7 @@ def coleta_resultados_protocolos():
     print('-'*25)
 
 
-def coletar_dados(protocolo_tuple):
+def coletar_dados(protocolo_tuple) :
     try:
         protocolo = protocolo_tuple[0]
         retorno = requests.request(method="GET",

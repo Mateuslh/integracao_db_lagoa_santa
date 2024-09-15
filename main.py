@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
 import os
+
 from utils import args
 
 load_dotenv()
 
 from colect import coleta_dados, insercao_dados
+from migrar_dados.inserir_guias import insere_guias
 
 args.validar_args()
 
@@ -23,5 +25,9 @@ if os.getenv("TIPO_EXECUCAO") == 'periodico':
     insercao_dados.extrai_arquivos()
     insercao_dados.insere_arquivos()
 
+    insere_guias()
+
+
 if os.getenv("TIPO_EXECUCAO") == 'carga':
     pass
+
