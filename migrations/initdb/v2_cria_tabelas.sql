@@ -166,3 +166,8 @@ CREATE TABLE numero_baixa (
     id BIGINT PRIMARY KEY,
     usado BOOLEAN NOT NULL
 );
+CREATE TABLE economico_campo_adicional (
+    id              BIGINT PRIMARY KEY,
+    idEconomico     BIGINT NOT NULL,
+    campo_opcoes    VARCHAR(255) NOT NULL
+);
