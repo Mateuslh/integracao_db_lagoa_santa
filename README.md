@@ -105,3 +105,4 @@ docker-compose logs -f
 ## Conclusão
 
 Após seguir estes passos, o deploy do projeto "Integracao DB Lagoa Santa" estará concluído, e a aplicação estará rodando em containers Docker configurados no servidor Ubuntu.
+
