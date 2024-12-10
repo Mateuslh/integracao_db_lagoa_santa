@@ -38,6 +38,7 @@ def buscar_protocolos(idScript, situacao) -> list:
                                   ],
                                   redirect_uri='https://scripts.plataforma.betha.cloud/auth-callback.html')
 
+
     retorno = utils.RequisicaoTela(authorization=token_tela,
                                    method="GET",
                                    url="https://plataforma-execucoes.betha.cloud/v1/api/execucoes",
@@ -46,13 +47,14 @@ def buscar_protocolos(idScript, situacao) -> list:
                                        'origin': 'https://scripts.plataforma.betha.cloud',
                                        'priority': 'u=1, i',
                                        'referer': 'https://scripts.plataforma.betha.cloud/',
-                                       'user-access': os.getenv("TOKEN_TELA_USER_ACCESS"),
+                                       'user-access': os.getenv("USER_ACCESS"),
                                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
                                    },
                                    params={
                                        "filter": f' (artefato.id=\'{idScript}\' and artefato.tipo = \'SCRIPT\' )',
                                        "limit": os.getenv('REGISTROS_BUSCADOS_POR_SCRIPT')
                                    }).rodar()
+    print("Buscando protocolos...")
     for protocolo in retorno.json()["content"]:
         iniciada_em = datetime.strptime(protocolo["iniciadaEm"], "%Y-%m-%dT%H:%M:%S.%f")
         if not protocolo_inserted(idScript, protocolo) and \
@@ -62,7 +64,6 @@ def buscar_protocolos(idScript, situacao) -> list:
             insert_protocolo(protocolo, situacao)
             protocolos_inseridos.append(protocolo)
     return protocolos_inseridos
-
 
 
 def insert_protocolo(protocolo, situacao):

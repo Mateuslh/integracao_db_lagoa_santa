@@ -43,6 +43,8 @@ def gerar_inserts_csv_como_string(caminho_csv):
                 valores.append('NULL')
             else:
                 val_str = str(val).replace("'", "''").replace("\\", "\\\\")
+                if val_str.endswith('.0'):
+                    val_str = val_str[:-2]
                 valores.append(f"'{val_str}'")
 
         valores_str = ', '.join(valores)

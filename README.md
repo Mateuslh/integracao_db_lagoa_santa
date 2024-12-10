@@ -76,6 +76,12 @@ Reinicie o Docker para aplicar as mudanças:
 sudo systemctl restart docker
 ```
 
+### 7.1 Permissionar o arquivo 'run_python.sh'
+
+```bash
+sudo chmod +x run_python.sh
+```
+
 ### 8. Executar o Docker Compose
 
 Para subir os containers necessários para a aplicação, execute:

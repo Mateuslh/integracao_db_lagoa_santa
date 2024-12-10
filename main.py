@@ -12,8 +12,6 @@ args.validar_args()
 
 ids_scripts_periodico = os.getenv("LISTA_SCRIPTS_CONSULTA_PERIODICA").split(",")
 ids_scripts_carga = os.getenv("LISTA_SCRIPTS_CONSULTA_CARGA").split(",")
-
-
 if os.getenv("INIT") == 'true':
     coleta_dados.reset_periodico(ids_scripts=ids_scripts_periodico)
     coleta_dados.reset_periodico(ids_scripts=ids_scripts_carga)

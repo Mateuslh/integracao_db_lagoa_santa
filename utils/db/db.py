@@ -57,7 +57,7 @@ def execute_query(query, params=None):
             except Exception as e:
                 conn.rollback()
                 print(f"Failed to execute query: {e}")
-
+                print(query)
 
 def fetch_results(query, params=None):
     """

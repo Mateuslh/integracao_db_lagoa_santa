@@ -10,7 +10,7 @@ from models.guia import Guia
 
 def buscar_guias():
     rows_guias = utils.fetch_results("""
-select g.*,c.codigo as c_codigo,c.id as c_id,e.codigo as e_codigo,e.id as e_id
+    select g.*,c.codigo as c_codigo,c.id as c_id,e.codigo as e_codigo,e.id as e_id
     from guia_iss_govdigital g
     join economico e on e.codigo::bigint = g.num_cadastro::bigint
     join contribuinte c on c.id = e.contribuinte_id 
@@ -46,7 +46,6 @@ def envia_lancamento(lancamento: str) -> Response:
 
 
 def insere_guias():
-
 
     buscar_guias()
     lancamentos = utils.fetch_results("""SELECT id,json_enviado FROM lancamento where situacao = 'AGUARDANDO_ENVIO'""")
