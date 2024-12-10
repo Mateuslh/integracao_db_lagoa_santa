@@ -59,7 +59,12 @@ CREATE TABLE IF NOT EXISTS public.economico
     regimeCobrancaIss       VARCHAR(255),
     idContador              BIGINT,
     principal               VARCHAR(255),
-    dhInicioAtividade       TIMESTAMP
+    dhInicioAtividade       TIMESTAMP,
+    cod_atividade_servico   VARCHAR(255),
+    dhUltimaAlteracao       TIMESTAMP,
+    telefone   VARCHAR(255),
+    natureza   VARCHAR(255),
+    objeto_social   VARCHAR(4000)
 );
 
 CREATE TABLE guia_iss_govdigital
@@ -166,8 +171,51 @@ CREATE TABLE numero_baixa (
     id BIGINT PRIMARY KEY,
     usado BOOLEAN NOT NULL
 );
+
 CREATE TABLE economico_campo_adicional (
     id              BIGINT PRIMARY KEY,
     idEconomico     BIGINT NOT NULL,
     campo_opcoes    VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE economico_ativ_sec (
+    id              BIGINT PRIMARY KEY,
+    codigo_mobiliario     VARCHAR(255)  NOT NULL,
+    dhInicioAtividade    DATE ,
+    cod_atividade_servico VARCHAR(255) NOT NULL,
+    dhFimAtividade       DATE ,
+    aliquota             FLOAT ,
+    subatividade         VARCHAR(255) ,
+    descsubatividade     VARCHAR(255) ,
+    subaliquota          FLOAT
+);
+
+CREATE TABLE trb_regime_iss (
+    id              BIGINT PRIMARY KEY,
+    codigo_mobiliario     VARCHAR(255)  NOT NULL,
+    dhInicioAtividade    DATE ,
+    cod_atividade_servico VARCHAR(255) NOT NULL,
+    dhFimAtividade       DATE ,
+    aliquota             FLOAT ,
+    subatividade         VARCHAR(255) ,
+    descsubatividade     VARCHAR(255) ,
+    subaliquota          FLOAT
+);
+
+CREATE TABLE isscadastro_socios (
+    id              varchar(255) PRIMARY KEY,
+    inscricao       VARCHAR(255)  NOT NULL,
+    socio           VARCHAR(255)  ,
+    tipo_socio      VARCHAR(255) NOT NULL,
+    nome            VARCHAR(255)  ,
+    cgccpf          VARCHAR(255)  ,
+    endereco        VARCHAR(255) ,
+    numero          SERIAL,
+    complemento     VARCHAR(255) ,
+    bairro          VARCHAR(255) ,
+    cep             VARCHAR(255) ,
+    cidade          VARCHAR(255) ,
+    estado          VARCHAR(255) ,
+    rg              VARCHAR(255) ,
+    cargo           VARCHAR(255)
 );
