@@ -190,27 +190,23 @@ CREATE TABLE economico_ativ_sec (
     subaliquota          FLOAT
 );
 
-CREATE TABLE trb_regime_iss (
-    id              BIGINT PRIMARY KEY,
+CREATE TABLE regime_iss_historico (
+    id              VARCHAR(255) PRIMARY KEY,
     codigo_mobiliario     VARCHAR(255)  NOT NULL,
-    dhInicioAtividade    DATE ,
-    cod_atividade_servico VARCHAR(255) NOT NULL,
-    dhFimAtividade       DATE ,
-    aliquota             FLOAT ,
-    subatividade         VARCHAR(255) ,
-    descsubatividade     VARCHAR(255) ,
-    subaliquota          FLOAT
+    dhInicio    DATE ,
+    regime VARCHAR(255) ,
+    justificativa       VARCHAR(255)
 );
 
 CREATE TABLE isscadastro_socios (
     id              varchar(255) PRIMARY KEY,
     inscricao       VARCHAR(255)  NOT NULL,
-    socio           VARCHAR(255)  ,
+    socio           SERIAL,
     tipo_socio      VARCHAR(255) NOT NULL,
     nome            VARCHAR(255)  ,
     cgccpf          VARCHAR(255)  ,
     endereco        VARCHAR(255) ,
-    numero          SERIAL,
+    numero          VARCHAR(255),
     complemento     VARCHAR(255) ,
     bairro          VARCHAR(255) ,
     cep             VARCHAR(255) ,

@@ -107,12 +107,14 @@ FROM (
         dhinicioatividade::date as INICIOATIVIDADE,
         null::date as FIMATIVIDADE,
         null::varchar as DESCATIVIDADE,
-        null::float as ALIQUOTA,
+        b.aliquota::float as ALIQUOTA,
         null::varchar as SUBATIVIDADE,
         null::varchar as DESCSUBATIVIDADE,
         null::float as SUBALIQUOTA
         FROM economico
-     ) as sq;
+             left join aliquotas b on LPAD(SPLIT_PART(economico.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
+     ) as sq
+WHERE sq.CODATIVIDADE IS NOT NULL;
 
 CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS
 AS
