@@ -14,7 +14,7 @@ def buscar_guias():
     from guia_iss_govdigital g
     join economico e on e.codigo::bigint = g.num_cadastro::bigint
     join contribuinte c on c.id = e.contribuinte_id 
-    where g.processado = false""")
+    where g.processado = false and g.grp_processado = 0 """)
     for row in rows_guias:
         guia = Guia.from_row(row)
         lancamento = guia.toLancamento()
@@ -29,7 +29,7 @@ def buscar_guias():
 VALUES (%s, %s, %s, %s);""", (row["id"], "AGUARDANDO_ENVIO", None, lancamento.to_json()))
 
         utils.execute_query("""UPDATE public.guia_iss_govdigital
-SET  processado=TRUE
+SET  processado=TRUE, grp_processado=1
 WHERE id=%s;""", (row[0],))
 
 

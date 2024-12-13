@@ -89,9 +89,10 @@ SELECT *
 FROM (
     SELECT
     b.codigo INSCRICAO,
-    a.principal,
     a.atividade_cnae_codigo    CNAE,
-    a.atividade_cnae_descricao DESCATIVIDADE
+    case when a.principal = 'SIM' then 1 else 0 end as principal,
+    a.atividade_cnae_descricao DESCATIVIDADE,
+    null VERSAOCNAE
     FROM economico_cnae a
     LEFT JOIN integracao_db_lagoa_santa.public.economico b ON a.id_economico = b.id
 
@@ -102,17 +103,17 @@ AS
 SELECT *
 FROM (
         SELECT
-        codigo::varchar AS INSCRICAO,
+        codigo_mobiliario::varchar AS INSCRICAO,
         cod_atividade_servico as CODATIVIDADE,
         dhinicioatividade::date as INICIOATIVIDADE,
         null::date as FIMATIVIDADE,
-        null::varchar as DESCATIVIDADE,
+        b.descatividade::varchar as DESCATIVIDADE,
         b.aliquota::float as ALIQUOTA,
         null::varchar as SUBATIVIDADE,
         null::varchar as DESCSUBATIVIDADE,
         null::float as SUBALIQUOTA
-        FROM economico
-             left join aliquotas b on LPAD(SPLIT_PART(economico.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
+        FROM economico_ativ_sec
+             left join aliquotas b on LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
      ) as sq
 WHERE sq.CODATIVIDADE IS NOT NULL;
 
@@ -141,11 +142,11 @@ AS
 SELECT *
 FROM (
      select
-     null::varchar AS INSCRICAO,
-     null::varchar AS DATAINICIO,
-     null::varchar AS REGIME,
+     codigo_mobiliario::varchar AS INSCRICAO,
+     dhinicio::varchar AS DATAINICIO,
+     regime::varchar AS REGIME,
      null::varchar AS JUSTIFICATIVA
-     from economico e
+     from regime_iss_historico e
      ) as sq;
 
 CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS
