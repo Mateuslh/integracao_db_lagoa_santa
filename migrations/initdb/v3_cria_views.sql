@@ -161,7 +161,21 @@ CREATE OR REPLACE VIEW public.ISSBAIXADOCUMENTOS
 AS
 SELECT *
 FROM (
-        select * from integracao_db_lagoa_santa.public.contribuinte
+        select
+        ano_documento,
+        num_documento,
+        valor_titulo,
+        valorpago,
+        data_pagamento,
+        'ISS' as TRIBUTO,
+        valortotal,
+        juros,
+        multas,
+        correcao,
+        descontos,
+        txexpediente
+
+            from pagamentos
 
      ) as sq;
 

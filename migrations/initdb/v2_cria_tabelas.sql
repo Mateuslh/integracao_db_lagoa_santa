@@ -215,3 +215,19 @@ CREATE TABLE isscadastro_socios (
     rg              VARCHAR(255) ,
     cargo           VARCHAR(255)
 );
+
+CREATE TABLE pagamentos (
+    id              varchar(255) PRIMARY KEY,
+    ANO_DOCUMENTO       numeric  NOT NULL,
+    NUM_DOCUMENTO           numeric,
+    VALOR_TITULO      numeric NOT NULL,
+    VALORPAGO           numeric  ,
+    DATA_PAGAMENTO         date  ,
+    TRIBUTO        VARCHAR(255) ,
+    VALORTOTAL         numeric,
+    JUROS    numeric ,
+    MULTAS          numeric ,
+    CORRECAO             NUMERIC ,
+    DESCONTOS          NUMERIC ,
+    TXEXPEDIENTE          NUMERIC
+);
