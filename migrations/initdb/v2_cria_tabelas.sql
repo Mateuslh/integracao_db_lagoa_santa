@@ -198,23 +198,27 @@ CREATE TABLE regime_iss_historico (
     justificativa       VARCHAR(255)
 );
 
-CREATE TABLE isscadastro_socios (
-    id              varchar(255) PRIMARY KEY,
-    inscricao       VARCHAR(255)  NOT NULL,
-    socio           SERIAL,
-    tipo_socio      VARCHAR(255) NOT NULL,
-    nome            VARCHAR(255)  ,
-    cgccpf          VARCHAR(255)  ,
-    endereco        VARCHAR(255) ,
-    numero          VARCHAR(255),
-    complemento     VARCHAR(255) ,
-    bairro          VARCHAR(255) ,
-    cep             VARCHAR(255) ,
-    cidade          VARCHAR(255) ,
-    estado          VARCHAR(255) ,
-    rg              VARCHAR(255) ,
-    cargo           VARCHAR(255)
+CREATE TABLE infosocios (
+    id VARCHAR(100) GENERATED ALWAYS AS (ID_SOCIOS || '-' || CODIGOMOBILIARIO) STORED,
+    PRIMARY KEY (id),
+    CODIGOSOCIO       VARCHAR(255)  NOT NULL,
+    ID_SOCIOS           VARCHAR(255) NOT NULL,
+    TIPOPESSOASOCIO      VARCHAR(255) NOT NULL,
+    CPFCNPJSOCIO            VARCHAR(255)  ,
+    NOMESOCIO          VARCHAR(255)  ,
+    RGSOCIO       VARCHAR(255) ,
+    LOGRADOURO          VARCHAR(255),
+    BAIRRO     VARCHAR(255) ,
+    CIDADE          VARCHAR(255) ,
+    ESTADO             VARCHAR(255) ,
+    NUMERO          VARCHAR(255) ,
+    CEP          VARCHAR(255) ,
+    COMPLEMENTO              VARCHAR(255) ,
+    IDECONOMICOS           VARCHAR(255),
+    CODIGOMOBILIARIO              VARCHAR(255),
+    sequenciasocio              SERIAL
 );
+
 
 CREATE TABLE pagamentos (
     id              varchar(255) PRIMARY KEY,
@@ -230,4 +234,14 @@ CREATE TABLE pagamentos (
     CORRECAO             NUMERIC ,
     DESCONTOS          NUMERIC ,
     TXEXPEDIENTE          NUMERIC
+);
+
+CREATE TABLE cancelamento (
+    id SERIAL PRIMARY KEY NOT NULL,
+    guia_iss_govdigital_id INTEGER NOT NULL,
+    situacao VARCHAR(16) NOT NULL,
+    id_gerado NUMERIC,
+    nro_baixa numeric,
+    json_retorno json,
+    json_enviado json
 );

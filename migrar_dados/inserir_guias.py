@@ -47,7 +47,7 @@ def envia_lancamento(lancamento: str) -> Response:
 
 
 def insere_guias():
-
+    print("Inserindo guias...")
     buscar_guias()
     lancamentos = utils.fetch_results("""SELECT id,json_enviado FROM lancamento where situacao = 'AGUARDANDO_ENVIO'""")
 

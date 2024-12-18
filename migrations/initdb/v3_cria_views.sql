@@ -120,22 +120,21 @@ WHERE sq.CODATIVIDADE IS NOT NULL;
 CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS
 AS
 SELECT
-    e.codigo::varchar AS INSCRICAO,
-    null::NUMERIC AS SEQUENCIASOCIO,
-    null::varchar AS TIPOSOCIO,
-    null::varchar AS NOMESOCIO,
-    null::varchar AS DOCUMENTOSOCIO,
-    null::varchar AS LOGRADOUROSOCIO,
-    null::numeric AS NUMEROSOCIO,
-    null::varchar AS COMPLEMENTOSOCIO,
-    null::varchar AS BAIRROSOCIO,
-    null::varchar AS CEPSOCIO,
-    null::varchar AS CIDADESOCIO,
-    null::varchar AS ESTADOSOCIO,
-    null::varchar AS RGSOCIO,
-    null::varchar AS CARGOSOCIO
-FROM economico e;
-
+    codigomobiliario::varchar AS INSCRICAO,
+    sequenciasocio::varchar AS SOCIO,
+    tipopessoasocio AS TIPOSOCIO,
+    nomesocio as NOME,
+    cpfcnpjsocio as CGCCPF,
+    logradouro as ENDERECO,
+    numero as NUMERO,
+    complemento::varchar as COMPLEMENTO,
+    bairro as BAIRRO,
+    cep::varchar as CEP,
+    cidade as CIDADE,
+    estado as ESTADO,
+    rgsocio as RG,
+    null::varchar as CARGO
+    FROM infosocios;
 
 CREATE OR REPLACE VIEW public.TRBMOBREGIMEISS
 AS
@@ -176,13 +175,5 @@ FROM (
         txexpediente
 
             from pagamentos
-
-     ) as sq;
-
-CREATE OR REPLACE VIEW public.ISSCANCELADOCUMENTOS
-AS
-SELECT *
-FROM (
-        select * from integracao_db_lagoa_santa.public.contribuinte
 
      ) as sq;

@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 
+from migrar_dados.cancela_guias import executa_cancelamento
 from utils import args
 
 load_dotenv()
@@ -24,7 +25,7 @@ if os.getenv("TIPO_EXECUCAO") == 'periodico':
     insercao_dados.insere_arquivos()
 
     insere_guias()
-
+    executa_cancelamento()
 
 if os.getenv("TIPO_EXECUCAO") == 'carga':
     pass
