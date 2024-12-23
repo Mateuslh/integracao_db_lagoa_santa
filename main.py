@@ -29,4 +29,3 @@ if os.getenv("TIPO_EXECUCAO") == 'periodico':
 
 if os.getenv("TIPO_EXECUCAO") == 'carga':
     pass
-
