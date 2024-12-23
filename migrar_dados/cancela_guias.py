@@ -40,34 +40,37 @@ def buscar_guias_cancelaveis():
             print(f'NÃO FOI POSSÍVEL OBTER OS DADOS DO DEBITO:\n{e}')
             continue
     for debito in json_debitos:
-        utils.execute_query("""INSERT INTO cancelamento (guia_iss_govdigital_id, situacao, id_gerado, json_debito)
+        utils.execute_query("""INSERT INTO cancelamento (guia_iss_govdigital_id, situacao, id_lote, json_debito)
         VALUES (%s, %s, %s, %s);""", (debito["idguia_sonner"], "AGUARDANDO_ENVIO", None, json.dumps(debito)))
 
         utils.execute_query("""UPDATE public.guia_iss_govdigital_canc
         SET grp_processado=1
         WHERE idguia=%s;""", (debito["idguia_sonner"],))
 
+
 def envia_cancelamento(cancelamento: str) -> Response:
     cancelamento_body = {
-        "idIntegracao": "INTEGRACAO_NOTA_LS_"+str(cancelamento["id"]),
+        "idIntegracao": "INTEGRACAO_NOTA_LS_" + str(cancelamento["id"]),
         "guias": {
             "idGerado": {
                 "id": cancelamento["id"]
             },
-            "situacao":  "CANCELADA"
-
+            "situacao": "CANCELADA"
         }
     }
     try:
-        print(os.getenv("API_MIGRACAO_URL_BASE"))
-        print(os.getenv("TOKEN_MIGRACAO_INTEGRACAO"))
-        return request(url=os.getenv("API_MIGRACAO_URL_BASE") + "/guias",
-                       method="PATCH",
-                       headers={"Authorization": 'Bearer ' + os.getenv("TOKEN_MIGRACAO_INTEGRACAO")},
-                       json=json.dumps(cancelamento_body))
+        resposta = request(
+            url=os.getenv("API_MIGRACAO_URL_BASE") + "/guias",
+            method="PATCH",
+            headers={
+                "Authorization": 'Bearer ' + os.getenv("TOKEN_MIGRACAO_INTEGRACAO"),
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            json=cancelamento_body
+        )
+        return resposta
     except Exception as e:
         print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_cancelamento, VERIFIQUE O LOG DE ERROS:\n{e}')
-
 def executa_cancelamento():
     print("Buscando guias canceláveis...")
     buscar_guias_cancelaveis()
