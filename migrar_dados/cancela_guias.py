@@ -10,32 +10,35 @@ from models import Pessoa, Economico
 def buscar_guias_cancelaveis():
     json_debitos = list()
     rows_guias = utils.fetch_results("""
-    select a.num_cadastro, a.num_documento, a.idguia, b.id_gerado id_debito
+    select a.num_cadastro, a.num_documento, a.idguia, c.id_gerado, c.situacao
     from guia_iss_govdigital_canc a
-    left join lancamento b on a.idguia = b.guia_iss_govdigital_id""")
+    left join  integracao_db_lagoa_santa.public.guia_iss_govdigital b on a.idguia = b.idguia
+    left join lancamento c on b.id = c.guia_iss_govdigital_id
+    where c.guia_iss_govdigital_id is not null and c.situacao != 'ERRO' and a.idguia not in (SELECT guia_iss_govdigital_id FROM cancelamento)""")
     for row in rows_guias:
         id_debito = row[3]
         try:
-            resultado_debito = request(url=os.getenv("API_TERCEIRO_URL_BASE") + "/debitos/" + str(id_debito),
+            resultado_debito = request(url=os.getenv("API_PARCEIROS_URL_BASE") + "/lancamentos/debitos/" + str(id_debito),
                            method="GET",
                            headers={"user-access": os.getenv("API_TERCEIRO_USER_ACCESS"),
                                     "Authorization": 'Bearer ' + os.getenv("API_TERCEIRO_AUTHORIZATION")},
                            )
-            debito = resultado_debito.json()
-            debito["idguia_sonner"] = row[2]
-            situacao = debito.get("situacao").get("valor")
             if resultado_debito.status_code != 200:
                 print(f'ERRO AO BUSCAR O DEBITO: {resultado_debito.text}')
                 continue
+            debito = resultado_debito.json()
+            situacao = debito.get("situacao").get("valor")
             if situacao in ["CANCELADA", "INSCRITA", "PAGA"]:
                 continue
+
+            debito["idguia_sonner"] = str(row[2])
+
 
             json_debitos.append(debito)
 
         except Exception as e:
             print(f'NÃO FOI POSSÍVEL OBTER OS DADOS DO DEBITO:\n{e}')
             continue
-
     for debito in json_debitos:
         utils.execute_query("""INSERT INTO cancelamento (guia_iss_govdigital_id, situacao, id_gerado, json_debito)
         VALUES (%s, %s, %s, %s);""", (debito["idguia_sonner"], "AGUARDANDO_ENVIO", None, json.dumps(debito)))
@@ -46,20 +49,22 @@ def buscar_guias_cancelaveis():
 
 def envia_cancelamento(cancelamento: str) -> Response:
     cancelamento_body = {
-        "idIntegracao": "INTEGRACAO_NOTA_LS_"+cancelamento["id"],
+        "idIntegracao": "INTEGRACAO_NOTA_LS_"+str(cancelamento["id"]),
         "guias": {
             "idGerado": {
-                "id": cancelamento["id_debito"]
+                "id": cancelamento["id"]
             },
             "situacao":  "CANCELADA"
 
         }
     }
     try:
+        print(os.getenv("API_MIGRACAO_URL_BASE"))
+        print(os.getenv("TOKEN_MIGRACAO_INTEGRACAO"))
         return request(url=os.getenv("API_MIGRACAO_URL_BASE") + "/guias",
                        method="PATCH",
                        headers={"Authorization": 'Bearer ' + os.getenv("TOKEN_MIGRACAO_INTEGRACAO")},
-                       json=cancelamento_body)
+                       json=json.dumps(cancelamento_body))
     except Exception as e:
         print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_cancelamento, VERIFIQUE O LOG DE ERROS:\n{e}')
 
@@ -72,7 +77,7 @@ def executa_cancelamento():
         retorno = envia_cancelamento(cancelamento[1])
         try:
             mensagem_retorno = retorno.json()
-            idGerado = mensagem_retorno.get("id")
+            idGerado = mensagem_retorno.get("idLote")
         except Exception as e:
             idGerado = None
             mensagem_retorno = retorno.text
@@ -82,5 +87,5 @@ def executa_cancelamento():
             situacao = "ERRO"
 
         utils.execute_query(
-            """UPDATE cancelamento set json_debito = %s,situacao = %s,id_gerado = %s, json_retorno = %s where id = %s""",
+            """UPDATE cancelamento set json_debito = %s,situacao = %s,id_lote = %s, json_retorno = %s where id = %s""",
             (json.dumps(cancelamento[1]), situacao, idGerado, json.dumps(mensagem_retorno), cancelamento[0]))

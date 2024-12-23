@@ -240,7 +240,7 @@ CREATE TABLE cancelamento (
     id SERIAL PRIMARY KEY NOT NULL,
     guia_iss_govdigital_id INTEGER NOT NULL,
     situacao VARCHAR(16) NOT NULL,
-    id_gerado NUMERIC,
+    id_lote varchar,
     nro_baixa numeric,
     json_retorno json,
     json_enviado json
