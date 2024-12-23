@@ -148,13 +148,6 @@ FROM (
      from regime_iss_historico e
      ) as sq;
 
-CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS
-AS
-SELECT *
-FROM (
-        select * from integracao_db_lagoa_santa.public.contribuinte
-
-     ) as sq;
 
 CREATE OR REPLACE VIEW public.ISSBAIXADOCUMENTOS
 AS
