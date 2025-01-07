@@ -25,6 +25,7 @@ def buscar_guias():
         else :lancamento.chaveLancamento = "ISSQNMOVIM"
         numero_baixa = get_numero_baixa()
         lancamento.nroBaixa = numero_baixa
+        lancamento.observacoesReceitaDiversa = f"{lancamento.ano}{guia.num_documento}|{lancamento.observacoesReceitaDiversa}"
 
         utils.execute_query("""INSERT INTO lancamento (guia_iss_govdigital_id, situacao, id_gerado, nro_baixa, json_enviado)
 VALUES (%s, %s, %s, %s, %s);""", (row["id"], "AGUARDANDO_ENVIO", None,numero_baixa, lancamento.to_json()))
