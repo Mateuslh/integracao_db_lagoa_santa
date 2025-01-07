@@ -30,11 +30,11 @@ SELECT
         END AS REGIMEISS,
     dhinicioatividade::date AS VIGENCIAREGIMEISS,
     LPAD(SPLIT_PART(cod_atividade_servico, '.', 1), 4, '0') AS CODATIVIDADE,
-    b.descatividade AS DESCATIVIDADE,  -- tem que ver
-    b.aliquota::float AS ALIQUOTA,  -- tem que ver -- travado por melhoria, solicitar acesso aos campos adicionais da atividade via fonte ou api
-    null AS SUBATIVIDADE,  -- tem que ver -- travado por melhoria, solicitar acesso aos campos adicionais da atividade via fonte ou api
-    null AS DESCSUBATIVIDADE,  -- tem que ver -- travado por melhoria, solicitar acesso aos campos adicionais da atividade via fonte ou api
-    null::float AS SUBALIQUOTA,  -- tem que ver -- travado por melhoria, solicitar acesso aos campos adicionais da atividade via fonte ou api
+    b.descatividade AS DESCATIVIDADE,
+    b.aliquota::float AS ALIQUOTA,
+    null AS SUBATIVIDADE,
+    null AS DESCSUBATIVIDADE,
+    null::float AS SUBALIQUOTA,
     nomefantasia AS NOM_FANTASIA,
     (
         SELECT c.pessoajuridica_inscricaoestadual
@@ -57,7 +57,7 @@ SELECT
     null::float AS VALORESTIMADO,
     null::float AS VALORANUAL,
     100::float AS VALORSOCIEDADE,
-    dhultimaalteracao::date AS DATAALTERACAO,  -- tem que ver
+    dhultimaalteracao::date AS DATAALTERACAO,
     logradouro AS ENDERECOCORRES,
     CASE
         WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
@@ -69,7 +69,7 @@ SELECT
     municipio AS CIDADECORRES,
     uf AS ESTADOCORRES,
     idcontador::bigint AS CONTADOR,
-    objeto_social::text AS OBJETOSOCIAL,  -- campo adicional (objeto social)
+    objeto_social::text AS OBJETOSOCIAL,
     contribuinte_codigo AS CONTRIBUINTE,
     CASE
         WHEN contribuinte_tipopessoa = 'FISICA' THEN 'F'
@@ -154,19 +154,44 @@ AS
 SELECT *
 FROM (
         select
-        ano_documento,
-        num_documento,
-        valor_titulo,
-        valorpago,
-        data_pagamento,
+        c.ano_documento,
+        c.num_documento as num_documento,
+        a.valor_titulo,
+        a.valorpago,
+        a.data_pagamento,
         'ISS' as TRIBUTO,
-        valortotal,
-        juros,
-        multas,
-        correcao,
-        descontos,
-        txexpediente
+        a.valortotal,
+        a.juros,
+        a.multas,
+        a.correcao,
+        a.descontos,
+        a.txexpediente
 
-            from pagamentos
+            from pagamentos a
+            left join lancamento b
+                on a.num_documento = b.id_gerado
+            left join guia_iss_govdigital c
+                on b.guia_iss_govdigital_id = c.id
 
+
+     ) as sq;
+
+CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS
+AS
+SELECT *
+FROM (
+        select
+        c.ano_documento,
+        c.num_documento,
+        a.situacao,
+        null as PARCELAMENTO,
+        c.cod_cliente as INSCRICAO,
+        c.ano_competencia,
+        c.mes_competencia
+
+            from id_debito_inscrito a
+            left join lancamento b
+                on a.id = b.id_gerado
+            left join guia_iss_govdigital c
+                on b.guia_iss_govdigital_id = c.id
      ) as sq;

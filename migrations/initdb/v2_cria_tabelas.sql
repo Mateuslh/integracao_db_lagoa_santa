@@ -245,3 +245,8 @@ CREATE TABLE cancelamento (
     json_retorno json,
     json_enviado json
 );
+
+CREATE TABLE id_debito_inscrito (
+    id INTEGER PRIMARY KEY NOT NULL,
+    situacao varchar(255) NOT NULL
+);
