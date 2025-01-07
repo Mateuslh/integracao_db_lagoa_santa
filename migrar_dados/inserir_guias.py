@@ -26,8 +26,8 @@ def buscar_guias():
         numero_baixa = get_numero_baixa()
         lancamento.nroBaixa = numero_baixa
 
-        utils.execute_query("""INSERT INTO lancamento (guia_iss_govdigital_id, situacao, id_gerado, json_enviado)
-VALUES (%s, %s, %s, %s);""", (row["id"], "AGUARDANDO_ENVIO", None, lancamento.to_json()))
+        utils.execute_query("""INSERT INTO lancamento (guia_iss_govdigital_id, situacao, id_gerado, nro_baixa, json_enviado)
+VALUES (%s, %s, %s, %s, %s);""", (row["id"], "AGUARDANDO_ENVIO", None,numero_baixa, lancamento.to_json()))
 
         utils.execute_query("""UPDATE public.guia_iss_govdigital
 SET  processado=TRUE, grp_processado=1

@@ -4,8 +4,6 @@ import os
 from requests import request, Response
 
 import utils
-from migrar_dados.buscar_numeros_baixa import get_numero_baixa
-from models import Pessoa, Economico
 
 def buscar_guias_cancelaveis():
     json_debitos = list()
@@ -71,6 +69,7 @@ def envia_cancelamento(cancelamento: str) -> Response:
         return resposta
     except Exception as e:
         print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_cancelamento, VERIFIQUE O LOG DE ERROS:\n{e}')
+
 def executa_cancelamento():
     print("Buscando guias canceláveis...")
     buscar_guias_cancelaveis()
