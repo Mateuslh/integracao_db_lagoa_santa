@@ -236,6 +236,7 @@ CREATE TABLE pagamentos (
     TXEXPEDIENTE          NUMERIC
 );
 
+
 CREATE TABLE cancelamento (
     id SERIAL PRIMARY KEY NOT NULL,
     guia_iss_govdigital_id INTEGER NOT NULL,
@@ -243,7 +244,7 @@ CREATE TABLE cancelamento (
     id_lote varchar,
     nro_baixa numeric,
     json_retorno json,
-    json_enviado json
+    json_debito json
 );
 
 CREATE TABLE id_debito_inscrito (

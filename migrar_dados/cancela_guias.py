@@ -73,6 +73,7 @@ def envia_cancelamento(cancelamento: str) -> Response:
 def executa_cancelamento():
     print("Buscando guias canceláveis...")
     buscar_guias_cancelaveis()
+    print("Buscou guias cancelaveis.")
     cancelamentos = utils.fetch_results("""SELECT id,json_debito FROM cancelamento where situacao = 'AGUARDANDO_ENVIO'""")
 
     for cancelamento in cancelamentos:
