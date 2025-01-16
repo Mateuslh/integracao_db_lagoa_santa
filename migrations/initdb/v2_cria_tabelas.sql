@@ -164,6 +164,7 @@ CREATE TABLE lancamento (
     nro_baixa numeric,
     json_retorno json,
     json_enviado json,
+    obs_enviada varchar,
     FOREIGN KEY (guia_iss_govdigital_id) REFERENCES guia_iss_govdigital(id)
 );
 

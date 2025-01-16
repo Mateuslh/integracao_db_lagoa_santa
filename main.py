@@ -3,7 +3,7 @@ import os
 
 from migrar_dados.cancela_guias import executa_cancelamento
 from utils import args
-
+from migrar_dados.inserir_observacoes_nr_baixa import insere_observacoes
 load_dotenv()
 
 from colect import coleta_dados, insercao_dados
@@ -25,6 +25,7 @@ if os.getenv("TIPO_EXECUCAO") == 'periodico':
     insercao_dados.insere_arquivos()
 
     insere_guias()
+    insere_observacoes()
     executa_cancelamento()
 
 if os.getenv("TIPO_EXECUCAO") == 'carga':
