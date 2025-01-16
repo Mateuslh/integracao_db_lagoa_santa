@@ -47,28 +47,15 @@ def buscar_guias_cancelaveis():
 
 
 def envia_cancelamento(cancelamento: str) -> Response:
-    cancelamento_body = {
-        "idIntegracao": "INTEGRACAO_NOTA_LS_" + str(cancelamento["id"]),
-        "guias": {
-            "idGerado": {
-                "id": cancelamento["id"]
-            },
-            "situacao": "CANCELADA"
-        }
-    }
+    cancelamento_id = cancelamento["id"]
     try:
-        resposta = request(
-            url=os.getenv("API_MIGRACAO_URL_BASE") + "/guias",
-            method="PATCH",
-            headers={
-                "Authorization": 'Bearer ' + os.getenv("TOKEN_MIGRACAO_INTEGRACAO"),
-                "Content-Type": "application/json; charset=utf-8"
-            },
-            json=cancelamento_body
-        )
-        return resposta
+        return request(url=os.getenv("API_TERCEIRO_URL_BASE") + "/lancamentos/"+ cancelamento_id + "/cancelar",
+                       method="POST",
+                       headers={"user-access": os.getenv("API_TERCEIRO_USER_ACCESS"),
+                                "Authorization": 'Bearer ' + os.getenv("API_TERCEIRO_AUTHORIZATION")})
     except Exception as e:
-        print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_cancelamento, VERIFIQUE O LOG DE ERROS:\n{e}')
+        print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_lancamento, VERIFIQUE O LOG DE ERROS:\n{e}')
+
 
 def executa_cancelamento():
     print("Buscando guias canceláveis...")
