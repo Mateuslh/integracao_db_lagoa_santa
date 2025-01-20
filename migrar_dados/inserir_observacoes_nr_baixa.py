@@ -14,13 +14,17 @@ def insere_observacoes():
     lancamentos = utils.fetch_results("""SELECT id,guia_iss_govdigital_id,id_gerado,nro_baixa FROM lancamento where obs_enviada is null""")
 
     for lancamento in lancamentos:
-        observacao = lancamentos = utils.fetch_results(
-            """SELECT id,cod_barras FROM guia_iss_govdigital where id = %s""",(lancamento[1]))[1][-17:]
+
+        observacao = utils.fetch_results(
+            f"SELECT id,cod_barras FROM guia_iss_govdigital where id = {lancamento[1]}")
+        observacao = observacao[0][1]
+        observacao = observacao[-17:]
         retorno = envia_observacoes({"observacao":observacao,"nro_baixa":lancamento[3]})
 
         try:
             mensagem_retorno = retorno.json()
         except Exception as e:
+            print(f"Erro no envio da obs: {e}")
             mensagem_retorno = retorno.text
 
         situacao = f"SUCESSO_OBS-${mensagem_retorno}"
@@ -35,12 +39,14 @@ def insere_observacoes():
 
 def envia_observacoes(lancamento: dict):
     obsBody = {
-        "idIntegracao": "INTEGRACAO_NOTA_LS_" + str(cancelamento["id"]),
+        "idIntegracao": "INTEGRACAO_NOTA_LS_" + str(lancamento["nro_baixa"]),
         "obsNumerosBaixas": {
-            "observacao":lancamento["observacao"],
-            "nroBaixa": lancamento["nro_baixa"]
+            "observacao": lancamento["observacao"],
+            "nroBaixa": str(lancamento["nro_baixa"])  # or float(lancamento["nro_baixa"]) if you prefer a numeric type
         }
     }
+
+    print(obsBody)
     try:
         resposta = request(
             url=os.getenv("API_MIGRACAO_URL_BASE") + "/obsNumerosBaixas",
@@ -53,4 +59,4 @@ def envia_observacoes(lancamento: dict):
         )
         return resposta
     except Exception as e:
-        print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_cancelamento, VERIFIQUE O LOG DE ERROS:\n{e}')
+        print(f'[ATENÇÃO]ERRO NA FUNÇÃO envia_observacoes, VERIFIQUE O LOG DE ERROS:\n{e}')
