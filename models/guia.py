@@ -99,5 +99,5 @@ class Guia:
             pessoa=None,
             economico=None,
             codigoBarras=self.cod_barras,
-            camposAdicionais={"valor": str(self.total)},
+            camposAdicionais={"valor": str(self.valor_imposto)},
         )

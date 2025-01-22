@@ -14,8 +14,8 @@ def buscar_guias():
     from guia_iss_govdigital g
     join economico e on e.codigo::bigint = g.num_cadastro::bigint
     join contribuinte c on c.id = e.contribuinte_id 
-    where g.processado = false and g.grp_processado = 0 
-    and g.juros = 0 and g.multa = 0 and g.correcao = 0""")
+    where g.processado = false and g.grp_processado = 0
+    and RIGHT(g.cod_barras, 17) not in (SELECT observacao from obs_nros_baixas where observacao = RIGHT(g.cod_barras, 17) ) """)
     for row in rows_guias:
         guia = Guia.from_row(row)
         lancamento = guia.toLancamento()

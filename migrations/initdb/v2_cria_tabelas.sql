@@ -252,3 +252,10 @@ CREATE TABLE id_debito_inscrito (
     id INTEGER PRIMARY KEY NOT NULL,
     situacao varchar(255) NOT NULL
 );
+
+
+CREATE TABLE obs_nros_baixas (
+    id varchar PRIMARY KEY NOT NULL,
+    nro_baixa varchar NOT NULL,
+    observacao varchar NOT NULL
+);

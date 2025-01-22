@@ -26,7 +26,7 @@ SELECT
         WHEN regimeCobrancaIss = 'FIXO' THEN 'A'
         WHEN regimecobrancaiss = 'ESTIMADO' THEN 'E'
         WHEN regimecobrancaiss = 'HOMOLOGADO' THEN 'F'
-        WHEN regimecobrancaiss = 'SEM_COBRANCA' THEN 'I'
+        WHEN regimecobrancaiss = 'SEM_COBRANCA' THEN 'N'
         END AS REGIMEISS,
     dhinicioatividade::date AS VIGENCIAREGIMEISS,
     LPAD(SPLIT_PART(cod_atividade_servico, '.', 1), 4, '0') AS CODATIVIDADE,
@@ -142,7 +142,7 @@ SELECT *
 FROM (
      select
      codigo_mobiliario::varchar AS INSCRICAO,
-     dhinicio::varchar AS DATAINICIO,
+     dhinicio::date AS DATAINICIO,
      regime::varchar AS REGIME,
      null::varchar AS JUSTIFICATIVA
      from regime_iss_historico e
