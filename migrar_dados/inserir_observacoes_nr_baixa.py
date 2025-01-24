@@ -11,7 +11,7 @@ from models.guia import Guia
 
 def insere_observacoes():
     print("Inserindo observações...")
-    lancamentos = utils.fetch_results("""SELECT id,guia_iss_govdigital_id,id_gerado,nro_baixa FROM lancamento where obs_enviada is null""")
+    lancamentos = utils.fetch_results("""SELECT id,guia_iss_govdigital_id,id_gerado,nro_baixa FROM lancamento where obs_enviada is null and id_gerado is not null and situacao = 'SUCESSO'""")
 
     for lancamento in lancamentos:
 
