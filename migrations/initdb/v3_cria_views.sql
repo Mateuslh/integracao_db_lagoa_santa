@@ -1,197 +1,195 @@
-CREATE OR REPLACE VIEW public.isscadastro
-AS
-SELECT *
-FROM (
-SELECT
-    codigo::varchar AS INSCRICAO,
-    contribuinte_codigo::varchar AS INSCRICAOCAD,
-    contribuinte_tipopessoa AS TIPOEMPRESA,
-    natureza AS NATUREZA,  -- da tabela de campo adicional (natureza)
-    CASE
-        WHEN situacao = 'ATIVADO' THEN 'A'
-        WHEN situacao = 'INICIO' THEN 'A'
-        WHEN situacao = 'REINICIO' THEN 'A'
-        WHEN situacao = 'BAIXADO' THEN 'B'
-        WHEN situacao = 'SUSPENSO' THEN 'P'
-        WHEN situacao = 'CANCELADO' THEN 'B'
-        WHEN situacao = 'IRREGULAR' THEN 'L'
-        WHEN situacao = 'REGULAR' THEN 'A'
-        END AS STATUS,
-    nome AS NOME,
-    dhinicioatividade::date AS DATAINSCRICAO,  -- da tabela de campo adicional (data inscrição)
-    CASE
-        WHEN situacao = 'BAIXADO' THEN dtsituacao::date
-        END AS DATAFECHAMENTO,
-    CASE
-        WHEN regimeCobrancaIss = 'FIXO' THEN 'A'
-        WHEN regimecobrancaiss = 'ESTIMADO' THEN 'E'
-        WHEN regimecobrancaiss = 'HOMOLOGADO' THEN 'F'
-        WHEN regimecobrancaiss = 'SEM_COBRANCA' THEN 'N'
-        END AS REGIMEISS,
-    dhinicioatividade::date AS VIGENCIAREGIMEISS,
-    LPAD(SPLIT_PART(cod_atividade_servico, '.', 1), 4, '0') AS CODATIVIDADE,
-    b.descatividade AS DESCATIVIDADE,
-    b.aliquota::float AS ALIQUOTA,
-    null AS SUBATIVIDADE,
-    null AS DESCSUBATIVIDADE,
-    null::float AS SUBALIQUOTA,
-    nomefantasia AS NOM_FANTASIA,
-    (
-        SELECT c.pessoajuridica_inscricaoestadual
-        FROM contribuinte c
-        WHERE c.id = economico.contribuinte_id
-          AND c.pessoajuridica_inscricaoestadual != 'nan'
-    ) AS INS_ESTADUAL,
-    contribuinte_cpfCnpj AS CPF_CGC,
-    logradouro AS ENDERECO,
-    CASE
-        WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
-        ELSE regexp_replace(numero, '\D', '', 'g')::bigint
-        END AS NUMCORRES,
-    complemento AS COMPLEMENTO,
-    bairro AS BAIRRO,
-    CAST(split_part(cep, '.', 1) AS bigint) AS CEP,
-    municipio AS CIDADE,
-    uf AS ESTADO,
-    telefone AS TELEFONE,
-    null::float AS VALORESTIMADO,
-    null::float AS VALORANUAL,
-    100::float AS VALORSOCIEDADE,
-    dhultimaalteracao::date AS DATAALTERACAO,
-    logradouro AS ENDERECOCORRES,
-    CASE
-        WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
-        ELSE regexp_replace(numero, '\D', '', 'g')::bigint
-        END AS NUMERO,
-    complemento AS COMPCORRES,
-    bairro AS BAIRROCORRES,
-    CAST(split_part(cep, '.', 1) AS bigint) AS CEPCORRES,
-    municipio AS CIDADECORRES,
-    uf AS ESTADOCORRES,
-    idcontador::bigint AS CONTADOR,
-    objeto_social::text AS OBJETOSOCIAL,
-    contribuinte_codigo AS CONTRIBUINTE,
-    CASE
-        WHEN contribuinte_tipopessoa = 'FISICA' THEN 'F'
-        WHEN contribuinte_tipopessoa = 'JURIDICA' THEN 'J'
-        END AS TIPOCONT,
-    contribuinte_email AS EMAIL,
-    imovel_codigo::bigint AS IMOVEL
+CREATE OR REPLACE VIEW public.ISSCADASTRO AS
+SELECT * FROM (SELECT
+    CAST(LPAD(codigo::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO, -- Código do Mobiliário
+    CAST(contribuinte_codigo::VARCHAR AS VARCHAR(20)) AS INSCRICAOCAD, -- Inscrição municipal do Mobiliário
+    CAST(
+        CASE
+            WHEN contribuinte_tipopessoa = 'FISICA' THEN 'F'
+            WHEN contribuinte_tipopessoa = 'JURIDICA' THEN 'J'
+        END AS VARCHAR(1)
+    ) AS TIPOEMPRESA, -- Tipo de Empresa (PJ ou PF)
+    CAST(natureza AS VARCHAR(1)) AS NATUREZA, -- Natureza: P, E ou X
+    CAST(
+        CASE
+            WHEN situacao IN ('ATIVADO', 'INICIO', 'REINICIO', 'REGULAR') THEN 'A'
+            WHEN situacao = 'BAIXADO' THEN 'B'
+            WHEN situacao = 'SUSPENSO' THEN 'P'
+            WHEN situacao = 'CANCELADO' THEN 'B'
+            WHEN situacao = 'IRREGULAR' THEN 'L'
+        END AS VARCHAR(1)
+    ) AS STATUS, -- Situação
+    CAST(nome AS VARCHAR(254)) AS NOME, -- Nome do Mobiliário
+    CAST(dhinicioatividade AS DATE) AS DATAINSCRICAO, -- Data de Inscrição
+    CAST(
+        CASE
+            WHEN situacao = 'BAIXADO' THEN dtsituacao
+        END AS DATE
+    ) AS DATAFECHAMENTO, -- Data de Encerramento
+    CAST(
+        CASE
+            WHEN regimeCobrancaIss = 'FIXO' THEN 'A'
+            WHEN regimecobrancaiss = 'ESTIMADO' THEN 'E'
+            WHEN regimecobrancaiss = 'HOMOLOGADO' THEN 'F'
+            WHEN regimecobrancaiss = 'SEM_COBRANCA' THEN 'N'
+        END AS VARCHAR(1)
+    ) AS REGIMEISS, -- Regime ISS
+    CAST(dhinicioatividade AS DATE) AS VIGENCIAREGIMEISS, -- Início vigência do Regime
+    CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) AS CODATIVIDADE, -- Código atividade principal
+    CAST(b.descatividade AS VARCHAR(254)) AS DESCATIVIDADE, -- Descrição Atividade Principal
+    CAST(b.aliquota AS NUMERIC(22)) AS ALIQUOTA, -- Alíquota Atividade Principal
+    CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 3 FOR 4) AS VARCHAR(20)) AS SUBATIVIDADE, -- Código SubAtividade Principal
+    CAST(NULL AS VARCHAR(254)) AS DESCSUBATIVIDADE, -- Descrição SubAtividade Principal
+    CAST(NULL AS NUMERIC(22)) AS SUBALIQUOTA, -- Alíquota SubAtividade Principal
+    CAST(nomefantasia AS VARCHAR(254)) AS NOM_FANTASIA, -- Nome Fantasia
+    CAST(
+        (
+            SELECT c.pessoajuridica_inscricaoestadual
+            FROM contribuinte c
+            WHERE c.id = economico.contribuinte_id
+              AND c.pessoajuridica_inscricaoestadual != 'nan'
+        ) AS VARCHAR(20)
+    ) AS INS_ESTADUAL, -- Inscrição Estadual
+    CAST(contribuinte_cpfCnpj AS VARCHAR(15)) AS CPF_CGC, -- Documento Mobiliário
+    CAST(logradouro AS VARCHAR(266)) AS ENDERECO, -- Logradouro
+    CAST(
+        CASE
+            WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
+            ELSE regexp_replace(numero, '\D', '', 'g')::BIGINT
+        END AS NUMERIC(22)
+    ) AS NUMERO, -- Número Logradouro
+    CAST(complemento AS VARCHAR(100)) AS COMPLEMENTO, -- Complemento Logradouro
+    CAST(bairro AS VARCHAR(100)) AS BAIRRO, -- Bairro
+    CAST(cep AS NUMERIC(22)) AS CEP, -- CEP
+    CAST(municipio AS VARCHAR(100)) AS CIDADE, -- Cidade
+    CAST(uf AS VARCHAR(30)) AS ESTADO, -- Estado
+    CAST(telefone AS VARCHAR(200)) AS TELEFONE, -- Telefone
+    CAST(NULL AS NUMERIC(22)) AS VALORESTIMADO, -- Valor Estimado informado
+    CAST(NULL AS NUMERIC(22)) AS VALORANUAL, -- Valor Anual informado
+    CAST(100 AS NUMERIC(22)) AS VALORSOCIEDADE, -- Valor Sociedade Informado
+    CAST(dhultimaalteracao AS DATE) AS DATAALTERACAO, -- Data da Última Alteração
+    CAST(logradouro AS VARCHAR(266)) AS ENDERECOCORRES, -- Logradouro Correspondência
+    CAST(
+        CASE
+            WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
+            ELSE regexp_replace(numero, '\D', '', 'g')::BIGINT
+        END AS NUMERIC(22)
+    ) AS NUMCORRES, -- Número Correspondência
+    CAST(complemento AS VARCHAR(100)) AS COMPCORRES, -- Complemento Correspondência
+    CAST(bairro AS VARCHAR(100)) AS BAIRROCORRES, -- Bairro Correspondência
+    CAST(cep AS NUMERIC(22)) AS CEPCORRES, -- CEP Correspondência
+    CAST(municipio AS VARCHAR(100)) AS CIDADECORRES, -- Cidade Correspondência
+    CAST(uf AS VARCHAR(30)) AS ESTADOCORRES, -- Estado Correspondência
+    CAST(idcontador AS NUMERIC(22)) AS CONTADOR, -- Contador informado no cadastro
+    CAST(objeto_social AS VARCHAR(4000)) AS OBJETOSOCIAL, -- Objeto Social
+    CAST(contribuinte_codigo AS NUMERIC(22)) AS CONTRIBUINTE, -- Código Contribuinte
+    CAST(
+        CASE
+            WHEN contribuinte_tipopessoa = 'FISICA' THEN 'F'
+            WHEN contribuinte_tipopessoa = 'JURIDICA' THEN 'J'
+        END AS VARCHAR(1)
+    ) AS TIPOCONT, -- Tipo do Contribuinte
+    CAST(contribuinte_email AS VARCHAR(200)) AS EMAIL, -- Email informado
+    CAST(imovel_codigo AS NUMERIC(22)) AS IMOVEL -- Código do Imóvel informado
 FROM economico
-         left join aliquotas b on LPAD(SPLIT_PART(economico.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
-) AS sq
+LEFT JOIN aliquotas b
+    ON LPAD(REPLACE(cod_atividade_servico, '.', ''), 4, '0') = b.codigoatividade)sq
 WHERE sq.CODATIVIDADE IS NOT NULL;
 
-
-CREATE OR REPLACE VIEW public.isscadastroativcnae
-AS
-SELECT *
-FROM (
-    SELECT
-    b.codigo INSCRICAO,
-    a.atividade_cnae_codigo    CNAE,
-    case when a.principal = 'SIM' then 1 else 0 end as principal,
-    a.atividade_cnae_descricao DESCATIVIDADE,
-    null VERSAOCNAE
-    FROM economico_cnae a
-    LEFT JOIN integracao_db_lagoa_santa.public.economico b ON a.id_economico = b.id
-
-     ) as sq;
-
-CREATE OR REPLACE VIEW public.ISSCADASTROATIVSEC
-AS
-SELECT *
-FROM (
-        SELECT
-        codigo_mobiliario::varchar AS INSCRICAO,
-        cod_atividade_servico as CODATIVIDADE,
-        dhinicioatividade::date as INICIOATIVIDADE,
-        null::date as FIMATIVIDADE,
-        b.descatividade::varchar as DESCATIVIDADE,
-        b.aliquota::float as ALIQUOTA,
-        null::varchar as SUBATIVIDADE,
-        null::varchar as DESCSUBATIVIDADE,
-        null::float as SUBALIQUOTA
-        FROM economico_ativ_sec
-             left join aliquotas b on LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
-     ) as sq
-WHERE sq.CODATIVIDADE IS NOT NULL;
-
-CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS
-AS
+CREATE OR REPLACE VIEW public.ISSCADASTROATIVCNAE AS
 SELECT
-    codigomobiliario::varchar AS INSCRICAO,
-    sequenciasocio::varchar AS SOCIO,
-    tipopessoasocio AS TIPOSOCIO,
-    nomesocio as NOME,
-    cpfcnpjsocio as CGCCPF,
-    logradouro as ENDERECO,
-    numero as NUMERO,
-    complemento::varchar as COMPLEMENTO,
-    bairro as BAIRRO,
-    cep::varchar as CEP,
-    cidade as CIDADE,
-    estado as ESTADO,
-    rgsocio as RG,
-    null::varchar as CARGO
-    FROM infosocios;
-
-CREATE OR REPLACE VIEW public.TRBMOBREGIMEISS
-AS
-SELECT *
-FROM (
-     select
-     codigo_mobiliario::varchar AS INSCRICAO,
-     dhinicio::date AS DATAINICIO,
-     regime::varchar AS REGIME,
-     null::varchar AS JUSTIFICATIVA
-     from regime_iss_historico e
-     ) as sq;
+    CAST(LPAD(codigo::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO,          -- Código do Mobiliário
+    CAST(a.atividade_cnae_codigo AS VARCHAR(10)) AS CNAE, -- Código CNAE
+    CAST(CASE
+            WHEN a.principal = 'SIM' THEN 1
+            ELSE 0
+         END AS NUMERIC(22)) AS PRINCIPAL,              -- 0 - Não, 1 - Sim
+    CAST(a.atividade_cnae_descricao AS VARCHAR(254)) AS DESCATIVIDADE, -- Descrição do CNAE
+    CAST(NULL AS NUMERIC(22)) AS VERSAOCNAE             -- Versão do CNAE (sempre NULL)
+FROM economico_cnae a
+LEFT JOIN integracao_db_lagoa_santa.public.economico b
+    ON a.id_economico = b.id;
 
 
-CREATE OR REPLACE VIEW public.ISSBAIXADOCUMENTOS
-AS
-SELECT *
-FROM (
-        select
-        c.ano_documento,
-        c.num_documento as num_documento,
-        a.valor_titulo,
-        a.valorpago,
-        a.data_pagamento,
-        'ISS' as TRIBUTO,
-        a.valortotal,
-        a.juros,
-        a.multas,
-        a.correcao,
-        a.descontos,
-        a.txexpediente
+CREATE OR REPLACE VIEW public.ISSCADASTROATIVSEC AS
+SELECT
+    CAST(LPAD(codigo_mobiliario::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO,          -- Código do Mobiliário
+    CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) AS CODATIVIDADE, -- Código da Atividade
+    CAST(dhinicioatividade AS DATE) AS INICIOATIVIDADE,         -- Data Início da Atividade
+    CAST(NULL AS DATE) AS FIMATIVIDADE,                         -- Data Fim da Atividade (sempre NULL)
+    CAST(b.descatividade AS VARCHAR(254)) AS DESCATIVIDADE,     -- Descrição da Atividade
+    CAST(b.aliquota AS NUMERIC(22)) AS ALIQUOTA,                -- Alíquota da Atividade
+    CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 3 FOR 4) AS VARCHAR(20)) AS SUBATIVIDADE,                  -- Código SubAtividade (sempre NULL)
+    CAST(b.descatividade AS VARCHAR(254)) AS DESCSUBATIVIDADE,             -- Descrição SubAtividade (sempre NULL)
+    CAST(b.aliquota AS NUMERIC(22)) AS SUBALIQUOTA                    -- Alíquota SubAtividade (sempre NULL)
+FROM economico_ativ_sec
+LEFT JOIN aliquotas b
+    ON LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade;
 
-            from pagamentos a
-            left join lancamento b
-                on a.num_documento = b.id_gerado
-            left join guia_iss_govdigital c
-                on b.guia_iss_govdigital_id = c.id
+CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS AS
+SELECT
+    CAST(LPAD(codigomobiliario::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO,   -- Código do Mobiliário
+    CAST(sequenciasocio AS NUMERIC(22)) AS SOCIO,       -- Sequência Sócio
+    CAST(tipopessoasocio AS VARCHAR(1)) AS TIPOSOCIO,   -- Tipo Sócio (PF ou PJ)
+    CAST(nomesocio AS VARCHAR(254)) AS NOME,            -- Nome Sócio
+    CAST(cpfcnpjsocio AS VARCHAR(15)) AS CGCCPF,        -- Documento Sócio
+    CAST(logradouro AS VARCHAR(254)) AS ENDERECO,       -- Logradouro Sócio
+    CAST(
+        CASE
+            WHEN regexp_replace(numero, '\D', '', 'g') = '' THEN NULL
+            ELSE regexp_replace(numero, '\D', '', 'g')::BIGINT
+        END AS NUMERIC(22)
+    ) AS NUMERO,                                        -- Número Sócio
+    CAST(complemento AS VARCHAR(100)) AS COMPLEMENTO,   -- Complemento Sócio
+    CAST(bairro AS VARCHAR(100)) AS BAIRRO,            -- Bairro Sócio
+    CAST(cep AS NUMERIC(22)) AS CEP,                   -- CEP Sócio
+    CAST(cidade AS VARCHAR(100)) AS CIDADE,            -- Cidade Sócio
+    CAST(estado AS VARCHAR(30)) AS ESTADO,             -- Estado Sócio
+    CAST(rgsocio AS VARCHAR(30)) AS RG,                -- RG do Sócio
+    CAST(NULL AS VARCHAR(254)) AS CARGO                -- Cargo do Sócio (sempre NULL)
+FROM infosocios;
+
+CREATE OR REPLACE VIEW public.TRBMOBREGIMEISS AS
+SELECT
+    CAST(LPAD(codigo_mobiliario::VARCHAR, 6, '0') AS VARCHAR(6))AS INSCRICAO,     -- Código Mobiliário
+    CAST(dhinicio AS DATE) AS DATAINICIO,                  -- Data Início do Regime
+    CAST(regime AS VARCHAR(1)) AS REGIME,                  -- Tipo de Regime
+    CAST(NULL AS VARCHAR(254)) AS JUSTIFICATIVA            -- Justificativa (sempre NULL)
+FROM regime_iss_historico;
 
 
-     ) as sq;
 
-CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS
-AS
-SELECT *
-FROM (
-        select
-        c.ano_documento,
-        c.num_documento,
-        a.situacao,
-        null as PARCELAMENTO,
-        c.cod_cliente as INSCRICAO,
-        c.ano_competencia,
-        c.mes_competencia
+CREATE OR REPLACE VIEW public.ISSBAIXADOCUMENTOS AS
+SELECT
+    CAST(c.ano_documento AS NUMERIC(22)) AS ANO_DOCUMENTO,   -- Ano de Geração da Guia
+    CAST(c.num_documento AS NUMERIC(22)) AS NUM_DOCUMENTO,   -- Número da Guia
+    CAST(a.valor_titulo AS NUMERIC(22)) AS VALOR_TITULO,     -- Valor do Título
+    CAST(a.valorpago AS NUMERIC(22)) AS VALORPAGO,           -- Valor Pago
+    CAST(a.data_pagamento AS DATE) AS DATA_PAGAMENTO,        -- Data do Pagamento
+    CAST('ISS' AS VARCHAR(15)) AS TRIBUTO,                  -- Sempre "I.S.S."
+    CAST(a.valortotal AS NUMERIC(22)) AS VALORTOTAL,         -- Valor Total
+    CAST(a.juros AS NUMERIC(22)) AS JUROS,                  -- Juros
+    CAST(a.multas AS NUMERIC(22)) AS MULTAS,                -- Multas
+    CAST(a.correcao AS NUMERIC(22)) AS CORRECAO,            -- Correção
+    CAST(a.descontos AS NUMERIC(22)) AS DESCONTOS,          -- Desconto
+    CAST(a.txexpediente AS NUMERIC(22)) AS TXEXPEDIENTE      -- Taxa de Expediente
+FROM pagamentos a
+LEFT JOIN lancamento b
+    ON a.num_documento = b.id_gerado
+LEFT JOIN guia_iss_govdigital c
+    ON b.guia_iss_govdigital_id = c.id;
 
-            from id_debito_inscrito a
-            left join lancamento b
-                on a.id = b.id_gerado
-            left join guia_iss_govdigital c
-                on b.guia_iss_govdigital_id = c.id
-     ) as sq;
+
+CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS AS
+SELECT
+    CAST(c.ano_documento AS NUMERIC(22)) AS ANO_DOCUMENTO, -- Ano de Geração da Guia
+    CAST(c.num_documento AS NUMERIC(22)) AS NUM_DOCUMENTO, -- Número da Guia
+    CAST(a.situacao AS VARCHAR(3)) AS SITUACAO,            -- Situação do título
+    CAST(NULL AS VARCHAR(81)) AS PARCELAMENTO,            -- Número do Parcelamento de Dívida Ativa (sempre NULL)
+    CAST(CAST(LPAD(cod_cliente::VARCHAR, 6, '0') AS VARCHAR(6)) AS VARCHAR(20)) AS INSCRICAO,      -- Código do Mobiliário
+    CAST(c.ano_competencia AS NUMERIC(22)) AS ANO_COMPETENCIA, -- Ano de competência do fato
+    CAST(c.mes_competencia AS VARCHAR(10)) AS MES_COMPETENCIA -- Mês de competência do fato
+FROM id_debito_inscrito a
+LEFT JOIN lancamento b
+    ON a.id = b.id_gerado
+LEFT JOIN guia_iss_govdigital c
+    ON b.guia_iss_govdigital_id = c.id;
