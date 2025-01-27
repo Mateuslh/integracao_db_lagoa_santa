@@ -95,6 +95,7 @@ LEFT JOIN aliquotas b
     ON LPAD(REPLACE(cod_atividade_servico, '.', ''), 4, '0') = b.codigoatividade)sq
 WHERE sq.CODATIVIDADE IS NOT NULL;
 
+
 CREATE OR REPLACE VIEW public.ISSCADASTROATIVCNAE AS
 SELECT
     CAST(LPAD(codigo::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO,          -- Código do Mobiliário

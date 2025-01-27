@@ -259,3 +259,9 @@ CREATE TABLE obs_nros_baixas (
     nro_baixa varchar NOT NULL,
     observacao varchar NOT NULL
 );
+
+CREATE TABLE atividade (
+    id varchar PRIMARY KEY NOT NULL,
+    atividade varchar NOT NULL,
+    descricao varchar NOT NULL
+);
