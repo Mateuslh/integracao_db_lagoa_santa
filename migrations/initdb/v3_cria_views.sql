@@ -35,17 +35,17 @@ SELECT * FROM (SELECT
     ) AS REGIMEISS, -- Regime ISS
     CAST(dhinicioatividade AS DATE) AS VIGENCIAREGIMEISS, -- Início vigência do Regime
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) AS CODATIVIDADE, -- Código atividade principal
-    CAST(b.descatividade AS VARCHAR(254)) AS DESCATIVIDADE, -- Descrição Atividade Principal
+    CAST(c.descricao AS VARCHAR(254)) AS DESCATIVIDADE, -- Descrição Atividade Principal
     CAST(b.aliquota AS NUMERIC(22)) AS ALIQUOTA, -- Alíquota Atividade Principal
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 3 FOR 4) AS VARCHAR(20)) AS SUBATIVIDADE, -- Código SubAtividade Principal
-    CAST(NULL AS VARCHAR(254)) AS DESCSUBATIVIDADE, -- Descrição SubAtividade Principal
-    CAST(NULL AS NUMERIC(22)) AS SUBALIQUOTA, -- Alíquota SubAtividade Principal
+    CAST(b.descatividade AS VARCHAR(254)) AS DESCSUBATIVIDADE, -- Descrição SubAtividade Principal
+    CAST(b.aliquota AS NUMERIC(22)) AS SUBALIQUOTA, -- Alíquota SubAtividade Principal
     CAST(nomefantasia AS VARCHAR(254)) AS NOM_FANTASIA, -- Nome Fantasia
     CAST(
         (
             SELECT c.pessoajuridica_inscricaoestadual
             FROM contribuinte c
-            WHERE c.id = economico.contribuinte_id
+            WHERE c.id = a.contribuinte_id
               AND c.pessoajuridica_inscricaoestadual != 'nan'
         ) AS VARCHAR(20)
     ) AS INS_ESTADUAL, -- Inscrição Estadual
@@ -90,9 +90,12 @@ SELECT * FROM (SELECT
     ) AS TIPOCONT, -- Tipo do Contribuinte
     CAST(contribuinte_email AS VARCHAR(200)) AS EMAIL, -- Email informado
     CAST(imovel_codigo AS NUMERIC(22)) AS IMOVEL -- Código do Imóvel informado
-FROM economico
+FROM economico a
 LEFT JOIN aliquotas b
-    ON LPAD(REPLACE(cod_atividade_servico, '.', ''), 4, '0') = b.codigoatividade)sq
+    ON trim( leading '0' from a.cod_atividade_servico) = trim(leading '0' from b.codigoatividade)
+left join atividade c
+    on  CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) = cast(c.atividade as numeric)
+)sq
 WHERE sq.CODATIVIDADE IS NOT NULL;
 
 
@@ -111,20 +114,23 @@ LEFT JOIN integracao_db_lagoa_santa.public.economico b
     ON a.id_economico = b.id;
 
 
+
 CREATE OR REPLACE VIEW public.ISSCADASTROATIVSEC AS
 SELECT
     CAST(LPAD(codigo_mobiliario::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO,          -- Código do Mobiliário
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) AS CODATIVIDADE, -- Código da Atividade
     CAST(dhinicioatividade AS DATE) AS INICIOATIVIDADE,         -- Data Início da Atividade
     CAST(NULL AS DATE) AS FIMATIVIDADE,                         -- Data Fim da Atividade (sempre NULL)
-    CAST(b.descatividade AS VARCHAR(254)) AS DESCATIVIDADE,     -- Descrição da Atividade
+    CAST(c.descricao AS VARCHAR(254)) AS DESCATIVIDADE,     -- Descrição da Atividade
     CAST(b.aliquota AS NUMERIC(22)) AS ALIQUOTA,                -- Alíquota da Atividade
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 3 FOR 4) AS VARCHAR(20)) AS SUBATIVIDADE,                  -- Código SubAtividade (sempre NULL)
     CAST(b.descatividade AS VARCHAR(254)) AS DESCSUBATIVIDADE,             -- Descrição SubAtividade (sempre NULL)
     CAST(b.aliquota AS NUMERIC(22)) AS SUBALIQUOTA                    -- Alíquota SubAtividade (sempre NULL)
 FROM economico_ativ_sec
 LEFT JOIN aliquotas b
-    ON LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade;
+    ON LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
+left join atividade c
+    on trim(leading '0' from substring(LPAD(b.codigoatividade, 4, '0') FROM 1 FOR 2)) = c.atividade;
 
 CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS AS
 SELECT
