@@ -22,7 +22,8 @@ CREATE INDEX protocolo_protocolo_id_idx ON public.protocolo USING btree (protoco
 
 CREATE TABLE IF NOT EXISTS public.economico_cnae
 (
-    id                       SERIAL PRIMARY KEY,
+    id                       VARCHAR(255) NOT NULL PRIMARY KEY
+,
     id_economico             BIGINT,
     principal                VARCHAR CHECK (principal IN ('SIM', 'NAO')),
     atividade_cnae_codigo    VARCHAR,
@@ -116,7 +117,8 @@ CREATE TABLE IF NOT EXISTS public.contribuinte
     nome                             VARCHAR(255),
     cpfCnpj                          VARCHAR(255),
     situacao                         VARCHAR(255),
-    tipoPessoa                       VARCHAR(255)
+    tipoPessoa                       VARCHAR(255),
+    inscricaoMunicipal               VARCHAR(255)
 );
 
 CREATE TABLE guia_iss_govdigital_canc
@@ -237,6 +239,21 @@ CREATE TABLE pagamentos (
     TXEXPEDIENTE          NUMERIC
 );
 
+CREATE TABLE pagamentos_chumbados (
+    id              varchar(255) PRIMARY KEY,
+    ANO_DOCUMENTO       numeric  NOT NULL,
+    NUM_DOCUMENTO           numeric,
+    VALOR_TITULO      numeric NOT NULL,
+    VALORPAGO           numeric  ,
+    DATA_PAGAMENTO         date  ,
+    TRIBUTO        VARCHAR(255) ,
+    VALORTOTAL         numeric,
+    JUROS    numeric ,
+    MULTAS          numeric ,
+    CORRECAO             NUMERIC ,
+    DESCONTOS          NUMERIC ,
+    TXEXPEDIENTE          NUMERIC
+);
 
 CREATE TABLE cancelamento (
     id SERIAL PRIMARY KEY NOT NULL,

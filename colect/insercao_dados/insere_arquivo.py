@@ -27,7 +27,7 @@ def insere_arquivos():
 
 
 def gerar_inserts_csv_como_string(caminho_csv):
-    df = pd.read_csv(caminho_csv, delimiter=os.getenv("CSV_DELIMITER"), engine='python')
+    df = pd.read_csv(caminho_csv, delimiter=os.getenv("CSV_DELIMITER"), engine='python', dtype = str)
     nome_tabela = caminho_csv.split("/")[-1].split(".")[0]
 
     print(f'Inserindo {df.shape[0]} registros na tabela {nome_tabela}...')

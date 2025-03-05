@@ -76,18 +76,18 @@ Reinicie o Docker para aplicar as mudanças:
 sudo systemctl restart docker
 ```
 
-### 7.1 Permissionar o arquivo 'run_python.sh'
+### 7.1 Permissionar o arquivo 'start_containers.sh'
 
 ```bash
-sudo chmod +x run_python.sh
+sudo chmod +x start_containers.sh
 ```
 
-### 8. Executar o Docker Compose
+### 8. Executar o Starter de Containers
 
 Para subir os containers necessários para a aplicação, execute:
 
 ```bash
-docker-compose up -d
+./start_containers.sh
 ```
 
 Este comando irá baixar as imagens necessárias, construir os containers e iniciá-los em segundo plano.

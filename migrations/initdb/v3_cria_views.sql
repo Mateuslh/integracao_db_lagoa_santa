@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW public.ISSCADASTRO AS
 SELECT * FROM (SELECT
-    CAST(LPAD(codigo::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO, -- Código do Mobiliário
-    CAST(contribuinte_codigo::VARCHAR AS VARCHAR(20)) AS INSCRICAOCAD, -- Inscrição municipal do Mobiliário
+    CAST(LPAD(a.codigo::VARCHAR, 6, '0') AS VARCHAR(6)) AS INSCRICAO, -- Código do Mobiliário
+    CAST(d.inscricaoMunicipal::VARCHAR AS VARCHAR(20)) AS INSCRICAOCAD, -- Inscrição municipal do Mobiliário
     CAST(
         CASE
             WHEN contribuinte_tipopessoa = 'FISICA' THEN 'F'
@@ -11,27 +11,22 @@ SELECT * FROM (SELECT
     CAST(natureza AS VARCHAR(1)) AS NATUREZA, -- Natureza: P, E ou X
     CAST(
         CASE
-            WHEN situacao IN ('ATIVADO', 'INICIO', 'REINICIO', 'REGULAR') THEN 'A'
-            WHEN situacao = 'BAIXADO' THEN 'B'
-            WHEN situacao = 'SUSPENSO' THEN 'P'
-            WHEN situacao = 'CANCELADO' THEN 'B'
-            WHEN situacao = 'IRREGULAR' THEN 'L'
+            WHEN a.situacao IN ('ATIVADO', 'INICIO', 'REINICIO', 'REGULAR') THEN 'A'
+            WHEN a.situacao = 'BAIXADO' THEN 'B'
+            WHEN a.situacao = 'SUSPENSO' THEN 'P'
+            WHEN a.situacao = 'CANCELADO' THEN 'B'
+            WHEN a.situacao = 'IRREGULAR' THEN 'L'
         END AS VARCHAR(1)
     ) AS STATUS, -- Situação
-    CAST(nome AS VARCHAR(254)) AS NOME, -- Nome do Mobiliário
+    CAST(a.nome AS VARCHAR(254)) AS NOME, -- Nome do Mobiliário
     CAST(dhinicioatividade AS DATE) AS DATAINSCRICAO, -- Data de Inscrição
     CAST(
         CASE
-            WHEN situacao = 'BAIXADO' THEN dtsituacao
+            WHEN a.situacao = 'BAIXADO' THEN dtsituacao
         END AS DATE
     ) AS DATAFECHAMENTO, -- Data de Encerramento
     CAST(
-        CASE
-            WHEN regimeCobrancaIss = 'FIXO' THEN 'A'
-            WHEN regimecobrancaiss = 'ESTIMADO' THEN 'E'
-            WHEN regimecobrancaiss = 'HOMOLOGADO' THEN 'F'
-            WHEN regimecobrancaiss = 'SEM_COBRANCA' THEN 'N'
-        END AS VARCHAR(1)
+        a.regimecobrancaiss AS VARCHAR(1)
     ) AS REGIMEISS, -- Regime ISS
     CAST(dhinicioatividade AS DATE) AS VIGENCIAREGIMEISS, -- Início vigência do Regime
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) AS CODATIVIDADE, -- Código atividade principal
@@ -95,6 +90,8 @@ LEFT JOIN aliquotas b
     ON trim( leading '0' from a.cod_atividade_servico) = trim(leading '0' from b.codigoatividade)
 left join atividade c
     on  CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 1 FOR 2) AS NUMERIC(22)) = cast(c.atividade as numeric)
+left join contribuinte d
+    on a.contribuinte_codigo = d.codigo
 )sq
 WHERE sq.CODATIVIDADE IS NOT NULL;
 
@@ -128,9 +125,9 @@ SELECT
     CAST(b.aliquota AS NUMERIC(22)) AS SUBALIQUOTA                    -- Alíquota SubAtividade (sempre NULL)
 FROM economico_ativ_sec
 LEFT JOIN aliquotas b
-    ON LPAD(SPLIT_PART(economico_ativ_sec.cod_atividade_servico, '.', 1), 4, '0') = b.codigoatividade
+    ON cod_atividade_servico = b.codigoatividade
 left join atividade c
-    on trim(leading '0' from substring(LPAD(b.codigoatividade, 4, '0') FROM 1 FOR 2)) = c.atividade;
+    on b.codigoatividade = c.atividade;
 
 CREATE OR REPLACE VIEW public.ISSCADASTROSOCIOS AS
 SELECT
@@ -172,7 +169,7 @@ SELECT
     CAST(a.valor_titulo AS NUMERIC(22)) AS VALOR_TITULO,     -- Valor do Título
     CAST(a.valorpago AS NUMERIC(22)) AS VALORPAGO,           -- Valor Pago
     CAST(a.data_pagamento AS DATE) AS DATA_PAGAMENTO,        -- Data do Pagamento
-    CAST('ISS' AS VARCHAR(15)) AS TRIBUTO,                  -- Sempre "I.S.S."
+    CAST(c.tipo_tributo AS VARCHAR(15)) AS TRIBUTO,                  -- Sempre "I.S.S."
     CAST(a.valortotal AS NUMERIC(22)) AS VALORTOTAL,         -- Valor Total
     CAST(a.juros AS NUMERIC(22)) AS JUROS,                  -- Juros
     CAST(a.multas AS NUMERIC(22)) AS MULTAS,                -- Multas
@@ -183,7 +180,26 @@ FROM pagamentos a
 LEFT JOIN lancamento b
     ON a.num_documento = b.id_gerado
 LEFT JOIN guia_iss_govdigital c
-    ON b.guia_iss_govdigital_id = c.id;
+    ON b.guia_iss_govdigital_id = c.id
+
+UNION ALL
+SELECT
+    CAST(a.ano_documento AS NUMERIC(22)) AS ANO_DOCUMENTO,   -- Ano de Geração da Guia
+    CAST(a.num_documento AS NUMERIC(22)) AS NUM_DOCUMENTO,   -- Número da Guia
+    CAST(a.valor_titulo AS NUMERIC(22)) AS VALOR_TITULO,     -- Valor do Título
+    CAST(a.valorpago AS NUMERIC(22)) AS VALORPAGO,           -- Valor Pago
+    CAST(a.data_pagamento AS DATE) AS DATA_PAGAMENTO,        -- Data do Pagamento
+    CAST('ISS' AS VARCHAR(15)) AS TRIBUTO,                  -- Sempre "I.S.S."
+    CAST(a.valortotal AS NUMERIC(22)) AS VALORTOTAL,         -- Valor Total
+    CAST(a.juros AS NUMERIC(22)) AS JUROS,                  -- Juros
+    CAST(a.multas AS NUMERIC(22)) AS MULTAS,                -- Multas
+    CAST(a.correcao AS NUMERIC(22)) AS CORRECAO,            -- Correção
+    CAST(a.descontos AS NUMERIC(22)) AS DESCONTOS,          -- Desconto
+    CAST(a.txexpediente AS NUMERIC(22)) AS TXEXPEDIENTE      -- Taxa de Expediente
+FROM pagamentos_chumbados a
+where  num_documento is not null
+
+;
 
 
 CREATE OR REPLACE VIEW public.ISSDIVIDADOCUMENTOS AS
