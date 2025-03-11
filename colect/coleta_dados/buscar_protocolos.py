@@ -56,7 +56,10 @@ def buscar_protocolos(idScript, situacao) -> list:
                                    }).rodar()
     print("Buscando protocolos...")
     for protocolo in retorno.json()["content"]:
-        iniciada_em = datetime.strptime(protocolo["iniciadaEm"], "%Y-%m-%dT%H:%M:%S.%f")
+        try:
+            iniciada_em = datetime.strptime(protocolo["iniciadaEm"], "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            iniciada_em = datetime.strptime(protocolo["iniciadaEm"], "%Y-%m-%dT%H:%M:%S")
         if not protocolo_inserted(idScript, protocolo) and \
                 protocolo["gerouResultado"] and \
                 protocolo["concluida"] and \

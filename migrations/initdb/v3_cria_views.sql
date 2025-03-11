@@ -123,9 +123,9 @@ SELECT
     CAST(substring(LPAD(cod_atividade_servico, 4, '0') FROM 3 FOR 4) AS VARCHAR(20)) AS SUBATIVIDADE,                  -- Código SubAtividade (sempre NULL)
     CAST(b.descatividade AS VARCHAR(254)) AS DESCSUBATIVIDADE,             -- Descrição SubAtividade (sempre NULL)
     CAST(b.aliquota AS NUMERIC(22)) AS SUBALIQUOTA                    -- Alíquota SubAtividade (sempre NULL)
-FROM economico_ativ_sec
+FROM economico_ativ_sec a
 LEFT JOIN aliquotas b
-    ON cod_atividade_servico = b.codigoatividade
+    ON trim( leading '0' from a.cod_atividade_servico) = trim(leading '0' from b.codigoatividade)
 left join atividade c
     on b.codigoatividade = c.atividade;
 
